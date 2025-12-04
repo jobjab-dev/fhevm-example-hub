@@ -1,0 +1,15 @@
+node_modules/
+log/
+dist/
+build/
+cache
+coverage/
+deployments/
+tmp/
+.coverage_artifacts
+.coverage_cache
+.coverage_contracts
+.coverage_contracts
+
+.env
+validation_output/

@@ -1,0 +1,130 @@
+{
+  "fhe-counter": {
+    "contract": "examples/contracts/basic/FHECounter.sol",
+    "test": "examples/test/basic/FHECounter.ts",
+    "description": "A simple FHE counter demonstrating basic encrypted operations",
+    "category": "basic",
+    "title": "Encrypted Counter",
+    "tags": ["basic", "counter", "beginner"]
+  },
+  "encrypt-single-value": {
+    "contract": "examples/contracts/basic/encrypt/EncryptSingleValue.sol",
+    "test": "examples/test/basic/encrypt/EncryptSingleValue.ts",
+    "description": "Demonstrates FHE encryption mechanism and common pitfalls",
+    "category": "encryption",
+    "title": "Encrypt Single Value",
+    "tags": ["encryption", "beginner"]
+  },
+  "encrypt-multiple-values": {
+    "contract": "examples/contracts/basic/encrypt/EncryptMultipleValues.sol",
+    "test": "examples/test/basic/encrypt/EncryptMultipleValues.ts",
+    "description": "Shows how to encrypt and handle multiple values",
+    "category": "encryption",
+    "title": "Encrypt Multiple Values",
+    "tags": ["encryption", "beginner"]
+  },
+  "user-decrypt-single-value": {
+    "contract": "examples/contracts/basic/decrypt/UserDecryptSingleValue.sol",
+    "test": "examples/test/basic/decrypt/UserDecryptSingleValue.ts",
+    "description": "Demonstrates user decryption and permission requirements",
+    "category": "decryption",
+    "title": "User Decrypt Single",
+    "tags": ["decryption", "user", "intermediate"]
+  },
+  "user-decrypt-multiple-values": {
+    "contract": "examples/contracts/basic/decrypt/UserDecryptMultipleValues.sol",
+    "test": "examples/test/basic/decrypt/UserDecryptMultipleValues.ts",
+    "description": "Shows how to decrypt multiple encrypted values",
+    "category": "decryption",
+    "title": "User Decrypt Multiple",
+    "tags": ["decryption", "user", "intermediate"]
+  },
+  "public-decrypt-single-value": {
+    "contract": "examples/contracts/basic/decrypt/PublicDecryptSingleValue.sol",
+    "test": "examples/test/basic/decrypt/PublicDecryptSingleValue.ts",
+    "description": "Demonstrates public decryption mechanism",
+    "category": "decryption",
+    "title": "Public Decrypt Single",
+    "tags": ["decryption", "public", "intermediate"]
+  },
+  "public-decrypt-multiple-values": {
+    "contract": "examples/contracts/basic/decrypt/PublicDecryptMultipleValues.sol",
+    "test": "examples/test/basic/decrypt/PublicDecryptMultipleValues.ts",
+    "description": "Shows public decryption with multiple values",
+    "category": "decryption",
+    "title": "Public Decrypt Multiple",
+    "tags": ["decryption", "public", "intermediate"]
+  },
+  "fhe-add": {
+    "contract": "examples/contracts/basic/fhe-operations/FHEAdd.sol",
+    "test": "examples/test/basic/fhe-operations/FHEAdd.ts",
+    "description": "Demonstrates FHE addition operations",
+    "category": "operations",
+    "title": "FHE Addition",
+    "tags": ["operations", "math", "beginner"]
+  },
+  "fhe-if-then-else": {
+    "contract": "examples/contracts/basic/fhe-operations/FHEIfThenElse.sol",
+    "test": "examples/test/basic/fhe-operations/FHEIfThenElse.ts",
+    "description": "Shows conditional operations on encrypted values",
+    "category": "operations",
+    "title": "FHE If-Then-Else",
+    "tags": ["operations", "logic", "intermediate"]
+  },
+  "access-control": {
+    "contract": "examples/contracts/access-control/AccessControlExample.sol",
+    "test": "examples/test/access-control/AccessControlExample.ts",
+    "description": "Demonstrates FHE.allow and FHE.allowTransient for access control",
+    "category": "concepts",
+    "title": "Access Control",
+    "tags": ["concepts", "security", "intermediate"]
+  },
+  "input-proofs": {
+    "contract": "examples/contracts/input-proofs/InputProofExample.sol",
+    "test": "examples/test/input-proofs/InputProofExample.ts",
+    "description": "Shows correct usage of input proofs to prevent malling",
+    "category": "concepts",
+    "title": "Input Proofs",
+    "tags": ["concepts", "security", "advanced"]
+  },
+  "anti-patterns": {
+    "contract": "examples/contracts/anti-patterns/AntiPatternExample.sol",
+    "test": "examples/test/anti-patterns/AntiPatternExample.ts",
+    "description": "Highlights common mistakes and how to fix them",
+    "category": "concepts",
+    "title": "Anti-Patterns",
+    "tags": ["concepts", "security", "best-practices"]
+  },
+  "handles": {
+    "contract": "examples/contracts/handles/HandleExample.sol",
+    "test": "examples/test/handles/HandleExample.ts",
+    "description": "Explains the concept of FHE handles and their lifecycle",
+    "category": "concepts",
+    "title": "Handles Lifecycle",
+    "tags": ["concepts", "core", "advanced"]
+  },
+  "blind-auction": {
+    "contract": "examples/contracts/auctions/BlindAuction.sol",
+    "test": "examples/test/blindAuction/BlindAuction.ts",
+    "description": "Sealed-bid auction with confidential bids",
+    "category": "applications",
+    "title": "Blind Auction",
+    "tags": ["applications", "defi", "advanced"]
+  },
+  "lab-input-proof": {
+    "contract": "examples/contracts/labs/LabInputProof.sol",
+    "test": "examples/test/labs/LabInputProof.ts",
+    "description": "Interactive Lab: Learn why input proofs are bound to contracts",
+    "category": "labs",
+    "title": "Lab: Input Proofs",
+    "tags": ["education", "security", "input-proofs"]
+  },
+  "erc7984-example": {
+    "contract": "examples/contracts/openzeppelin-confidential-contracts/ERC7984Example.sol",
+    "test": "examples/test/openzeppelin-confidential-contracts/ERC7984Example.ts",
+    "description": "ERC7984 confidential token standard implementation",
+    "category": "openzeppelin",
+    "title": "ERC7984 Token",
+    "tags": ["openzeppelin", "token", "standard"]
+  }
+}
