@@ -111,13 +111,17 @@ func.tags = ["${contractName}"];
   fs.writeFileSync(deployScriptPath, deployScript);
 }
 
-function updatePackageJson(outputDir: string, exampleName: string, description: string): void {
+function updatePackageJson(outputDir: string, exampleName: string, description: string, extraDependencies?: Record<string, string>): void {
   const packageJsonPath = path.join(outputDir, 'package.json');
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
 
   packageJson.name = `fhevm-example-${exampleName}`;
   packageJson.description = description;
   packageJson.homepage = `https://github.com/zama-ai/fhevm-examples/${exampleName}`;
+
+  if (extraDependencies) {
+    packageJson.dependencies = { ...packageJson.dependencies, ...extraDependencies };
+  }
 
   fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
 }
@@ -210,7 +214,7 @@ This project is licensed under the BSD-3-Clause-Clear License.
 
 export function createExample(exampleName: string, outputDir: string): void {
   const rootDir = path.resolve(__dirname, '..');
-  const templateDir = path.join(rootDir, 'fhevm-hardhat-base-template');
+  const templateDir = path.join(rootDir, 'fhevm-hardhat-template');
 
   // Check if example exists
   if (!EXAMPLES_MAP[exampleName]) {
@@ -301,7 +305,7 @@ export function createExample(exampleName: string, outputDir: string): void {
   // Step 4: Update configuration files
   log('\n⚙️  Step 4: Updating configuration...', Color.Cyan);
   updateDeployScript(outputDir, contractName);
-  updatePackageJson(outputDir, exampleName, example.description);
+  updatePackageJson(outputDir, exampleName, example.description, example.extraDependencies);
   success('Configuration updated');
 
   // Step 5: Generate README

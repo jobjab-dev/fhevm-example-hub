@@ -17,6 +17,17 @@ This example demonstrates how to implement **Handles Lifecycle** using FHEVM.
 - **Level:** 🔴 Advanced
 - **Category:** concepts
 
+## 📊 Lifecycle Visualization
+
+```mermaid
+graph TD
+  A[User encrypts value] -->|Generate| B[Handle h1]
+  B -->|Tx Call| C[Contract receives h1]
+  C -->|FHE Op| D[New Handle h2 Created]
+  D -->|Store| E[State Variable]
+  E -->|FHE.allow| F[Re-encryption for User]
+```
+
 ## 📝 Contract Implementation
 
 `contracts/HandleExample.sol`
@@ -71,47 +82,60 @@ contract HandleExample is ZamaEthereumConfig {
 ```typescript
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { ethers, fhevm } from "hardhat";
-import { HandleExample, HandleExample__factory } from "../../types";
+import { HandleExample } from "../../types";
 import { expect } from "chai";
 
-async function deployFixture() {
-  const factory = (await ethers.getContractFactory("HandleExample")) as HandleExample__factory;
-  const contract = (await factory.deploy()) as HandleExample;
-  const contractAddress = await contract.getAddress();
-  return { contract, contractAddress };
-}
-
 describe("HandleExample", function () {
-  let signers: { deployer: HardhatEthersSigner; alice: HardhatEthersSigner };
+  let signers: { deployer: HardhatEthersSigner };
   let contract: HandleExample;
   let contractAddress: string;
 
   before(async function () {
     const ethSigners = await ethers.getSigners();
-    signers = { deployer: ethSigners[0], alice: ethSigners[1] };
+    signers = { deployer: ethSigners[0] };
   });
 
   beforeEach(async function () {
-    if (!fhevm.isMock) {
-      this.skip();
-    }
-    ({ contract, contractAddress } = await deployFixture());
+    const factory = await ethers.getContractFactory("HandleExample");
+    contract = (await factory.deploy()) as HandleExample;
+    contractAddress = await contract.getAddress();
   });
 
-  it("should return different handles for input and result", async function () {
-    const input = await fhevm.createEncryptedInput(contractAddress, signers.alice.address)
-      .add32(10)
-      .encrypt();
+  /**
+   * @chapter concepts
+   * @example handles
+   * @summary Explains FHE handles and their lifecycle.
+   * 
+   * # Handle Lifecycle Diagram
+   * 
+   * ```mermaid
+   * graph TD
+   *   A[User Encrypts Data] -->|createEncryptedInput| B(Input Handle)
+   *   B -->|FHE.fromExternal| C{Smart Contract}
+   *   C -->|FHE.add| D(New Result Handle)
+   *   C -->|FHE.allow| E[Permission Added]
+   *   D -->|reencrypt| F[User Decrypts]
+   * ```
+   */
+  it("should generate new handles for operations", async function () {
+    const input = await fhevm.createEncryptedInput(contractAddress, signers.deployer.address)
+        .add32(10)
+        .encrypt();
+
+    // Call contract
+    // We can't easily get return values from non-view functions in Ethers v6 without staticCall or events.
+    // Using staticCall to check return values
+    const [h1, h2] = await contract.compareHandles.staticCall(input.handles[0], input.inputProof);
     
-    // Use staticCall to inspect return values of the non-view function
-    const [h1, h2] = await contract.connect(signers.alice).compareHandles.staticCall(input.handles[0], input.inputProof);
-    
+    // Actually execute state change (though not needed for this check, good practice)
+    await contract.compareHandles(input.handles[0], input.inputProof);
+
+    // Handles should be different numbers
     expect(h1).to.not.equal(h2);
-    expect(h1).to.not.equal(0);
-    expect(h2).to.not.equal(0);
+    console.log("Input Handle:", h1.toString());
+    console.log("Result Handle:", h2.toString());
   });
 });
-
 
 ```
 

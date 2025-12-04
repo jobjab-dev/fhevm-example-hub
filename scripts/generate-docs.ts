@@ -69,7 +69,7 @@ This example demonstrates how to implement **${config.title}** using FHEVM.
 
 - **Level:** ${config.tags.includes('beginner') ? '🟢 Beginner' : config.tags.includes('advanced') ? '🔴 Advanced' : '🟡 Intermediate'}
 - **Category:** ${config.category}
-
+${config.extraDoc || ''}
 ## 📝 Contract Implementation
 
 \`contracts/${path.basename(config.contract)}\`

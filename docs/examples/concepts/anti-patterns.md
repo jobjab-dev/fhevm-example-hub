@@ -47,7 +47,7 @@ contract AntiPatternExample is ZamaEthereumConfig {
         FHE.allowThis(_val);
     }
 
-    /// @notice Anti-Pattern: Forgetting FHE.allowThis()
+    /// @notice Anti-Pattern 1: Forgetting FHE.allowThis()
     /// @dev If you forget allowThis(), the contract will not be able to compute on this value later.
     function setIncorrectly(externalEuint32 input, bytes calldata inputProof) external {
         _unusableVal = FHE.fromExternal(input, inputProof);
@@ -68,8 +68,26 @@ contract AntiPatternExample is ZamaEthereumConfig {
         _unusableVal = res;
         FHE.allowThis(_unusableVal);
     }
-}
 
+    /// @notice Anti-Pattern 2: View functions with encrypted values
+    /// @dev View functions cannot modify state. FHE operations like decrypt() or reencrypt() 
+    /// usually require gas and might change state (e.g. key switching / temporary storage).
+    /// HOWEVER: In Zama's FHEVM, you CAN return handles from view functions, 
+    /// but you CANNOT do `FHE.req` or decryption that changes state inside a view.
+    /// Also, a common mistake is trying to "view" the decrypted value directly.
+    function badViewAttempt() external view returns (uint32) {
+        // This is impossible. You cannot decrypt inside a view function to return a cleartext.
+        // FHE.decrypt(_val); // Compile error or Runtime error depending on version
+        return 0; 
+    }
+
+    /// @notice Correct View: Return the handle (euint32)
+    /// @dev The caller (dApp) must then re-encrypt it using their public key (FHE.seal) locally 
+    /// OR call a view function that supports re-encryption if supported (e.g. Gateway).
+    function goodViewHandle() external view returns (euint32) {
+        return _val;
+    }
+}
 
 ```
 

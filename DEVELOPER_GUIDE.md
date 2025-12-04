@@ -73,3 +73,12 @@ npx ts-node scripts/generate-docs.ts
 - **Anti-Patterns**: If demonstrating a mistake, ensure the test explicitly expects a revert.
 - **Mock Mode**: Ensure tests check `if (!fhevm.isMock)` if they rely on specific testnet behavior, though most should work in mock mode.
 
+## 🚀 Future Proofing & Roadmap
+
+When contributing, please keep in mind the roadmap towards the **Zama Protocol**:
+
+- **Coprocessors**: The FHEVM ecosystem is moving towards a model where heavy computations are offloaded to verifiable Coprocessors. Avoid patterns that tightly couple execution to block limits where possible.
+- **Network Agnosticism**: Ensure your examples can run on both local Hardhat networks and public Testnets (Sepolia / Zama Devnet) by using the configuration helpers in `hardhat.config.ts`.
+
+See [Coprocessor Architecture](https://docs.zama.ai/protocol) for details.
+

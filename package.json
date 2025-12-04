@@ -11,7 +11,12 @@
     "docs": "ts-node scripts/generate-docs.ts",
     "validate": "ts-node scripts/validate-example.ts",
     "validate:all": "ts-node scripts/validate_all.ts",
-    "update:deps": "ts-node scripts/update-deps.ts"
+    "test:all": "ts-node scripts/validate_all.ts",
+    "lint": "ts-node scripts/validate-example.ts",
+    "update:deps": "ts-node scripts/update-deps.ts",
+    "build:web": "cd app && npm run build",
+    "dev:web": "cd app && npm run dev",
+    "preview:web": "cd app && npm run preview"
   },
   "keywords": [
     "fhevm",
