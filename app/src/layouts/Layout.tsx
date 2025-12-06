@@ -3,6 +3,8 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 import { Terminal, BookOpen, LayoutDashboard, Github } from 'lucide-react';
 import clsx from 'clsx';
 
+import GridBackground from '../components/GridBackground';
+
 const Layout = () => {
   const location = useLocation();
 
@@ -13,7 +15,8 @@ const Layout = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-black text-white font-sans selection:bg-yellow-500/30">
+    <div className="min-h-screen flex flex-col bg-black text-white font-sans selection:bg-yellow-500/30 relative">
+      <GridBackground />
       <header className="border-b border-white/10 sticky top-0 bg-black/80 backdrop-blur-md z-50">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 group">
@@ -42,14 +45,14 @@ const Layout = () => {
           </nav>
 
           <div className="flex items-center gap-4">
-             <a 
-               href="https://github.com/zama-ai/fhevm" 
-               target="_blank" 
-               rel="noopener noreferrer"
-               className="text-gray-400 hover:text-white transition-colors"
-             >
-               <Github size={20} />
-             </a>
+            <a
+              href="https://github.com/zama-ai/fhevm"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-400 hover:text-white transition-colors"
+            >
+              <Github size={20} />
+            </a>
           </div>
         </div>
       </header>
