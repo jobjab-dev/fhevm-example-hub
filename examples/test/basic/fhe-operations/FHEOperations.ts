@@ -70,8 +70,10 @@ describe("FHEOperations", function () {
     await contract.setValues(inputA.handles[0], inputA.inputProof, inputB.handles[0], inputB.inputProof);
     
     // Check equality (10 == 10)
-    const isEqual = await contract.eq();
-    expect(isEqual).to.be.true;
+    await contract.checkEqual();
+    const isEqHandle = await contract.isEqualResult();
+    const isEq = await fhevm.userDecryptEuint(FhevmType.euint8, isEqHandle, contractAddress, signers.deployer);
+    expect(isEq).to.equal(1); // 1 means true
 
     // Encrypt different value for B
     const inputB2 = await fhevm.createEncryptedInput(contractAddress, signers.deployer.address)
@@ -80,8 +82,10 @@ describe("FHEOperations", function () {
     
     await contract.setValues(inputA.handles[0], inputA.inputProof, inputB2.handles[0], inputB2.inputProof);
     
-    const isEqual2 = await contract.eq();
-    expect(isEqual2).to.be.false;
+    await contract.checkEqual();
+    const isEqHandle2 = await contract.isEqualResult();
+    const isEq2 = await fhevm.userDecryptEuint(FhevmType.euint8, isEqHandle2, contractAddress, signers.deployer);
+    expect(isEq2).to.equal(0); // 0 means false
   });
 });
 

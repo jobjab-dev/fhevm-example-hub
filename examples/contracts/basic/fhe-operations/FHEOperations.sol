@@ -14,6 +14,7 @@ contract FHEOperations is ZamaEthereumConfig {
   euint8 public diff;
   euint8 public prod;
   // euint8 public quot; // Division is supported but watch out for division by zero
+  euint8 public isEqualResult;
 
   constructor() {
       _a = FHE.asEuint8(0);
@@ -46,11 +47,12 @@ contract FHEOperations is ZamaEthereumConfig {
     FHE.allow(prod, msg.sender);
   }
 
-  function eq() external view returns (bool) {
-    // FHE.eq returns an ebool, which we can decrypt if we want to see the result immediately
-    // For this example, we'll return the decrypted boolean for simplicity in testing,
-    // though usually you'd keep it encrypted.
-    return FHE.decrypt(FHE.eq(_a, _b));
+  function checkEqual() external {
+    ebool isEq = FHE.eq(_a, _b);
+    // Convert ebool to euint8 (1 = true, 0 = false) for easier decryption and verification
+    isEqualResult = FHE.select(isEq, FHE.asEuint8(1), FHE.asEuint8(0));
+    FHE.allowThis(isEqualResult);
+    FHE.allow(isEqualResult, msg.sender);
   }
 }
 

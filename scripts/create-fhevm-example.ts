@@ -86,8 +86,63 @@ function getContractName(contractPath: string): string | null {
   return match ? match[1] : null;
 }
 
-function updateDeployScript(outputDir: string, contractName: string): void {
+function updateHardhatConfig(outputDir: string, exampleName: string, contractName: string): void {
+  const configPath = path.join(outputDir, 'hardhat.config.ts');
+  let configContent = fs.readFileSync(configPath, 'utf-8');
+
+  if (exampleName === 'fhe-counter') {
+    // For fhe-counter, we keep the task import but update the filename if needed
+    configContent = configContent.replace(/import "\.\/tasks\/FHECounter";/, `import "./tasks/${contractName}";`);
+  } else {
+    // For other examples, remove the FHECounter task import
+    configContent = configContent.replace(/import "\.\/tasks\/FHECounter";[\r\n]*/, '');
+  }
+
+  fs.writeFileSync(configPath, configContent);
+}
+
+function getConstructorArgs(contractPath: string, contractName: string): string[] {
+  const content = fs.readFileSync(contractPath, 'utf-8');
+  // Find the specific contract block
+  const contractRegex = new RegExp(`contract\\s+${contractName}\\s*(?:is\\s+[^{]+)?\\s*\\{([\\s\\S]*?)\\}`, 'm');
+  const match = content.match(contractRegex);
+  
+  if (!match) return [];
+  
+  const contractBody = match[1];
+  // Find constructor within that contract
+  const ctorRegex = /constructor\s*\(([^)]*)\)/;
+  const ctorMatch = contractBody.match(ctorRegex);
+  
+  if (!ctorMatch || !ctorMatch[1].trim()) return [];
+  
+  // Return the raw arguments string to be parsed or displayed
+  return ctorMatch[1].split(',').map(arg => arg.trim());
+}
+
+function updateDeployScript(outputDir: string, contractName: string, contractPath: string): void {
   const deployScriptPath = path.join(outputDir, 'deploy', 'deploy.ts');
+  const args = getConstructorArgs(contractPath, contractName);
+
+  let deployArgs = '';
+  let deployLog = '';
+
+  if (args.length > 0) {
+    deployArgs = `
+    // TODO: Constructor arguments required:
+    // ${args.join('\n    // ')}
+    args: [], // <--- Fill these in!`;
+    
+    deployLog = `
+  if (!deployed${contractName}.address) {
+    console.warn("Deploy failed (or dry run). Check constructor args in deploy/deploy.ts");
+  } else {
+    console.log(\`${contractName} contract: \`, deployed${contractName}.address);
+  }`;
+  } else {
+    deployLog = `
+  console.log(\`${contractName} contract: \`, deployed${contractName}.address);`;
+  }
 
   const deployScript = `import { DeployFunction } from "hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
@@ -98,10 +153,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const deployed${contractName} = await deploy("${contractName}", {
     from: deployer,
-    log: true,
-  });
-
-  console.log(\`${contractName} contract: \`, deployed${contractName}.address);
+    log: true,${deployArgs}
+  });${deployLog}
 };
 export default func;
 func.id = "deploy_${contractName.toLowerCase()}";
@@ -118,6 +171,23 @@ function updatePackageJson(outputDir: string, exampleName: string, description: 
   packageJson.name = `fhevm-example-${exampleName}`;
   packageJson.description = description;
   packageJson.homepage = `https://github.com/zama-ai/fhevm-examples/${exampleName}`;
+
+  // Add helpful scripts
+  packageJson.scripts = {
+    ...packageJson.scripts,
+    "task:account": "hardhat accounts",
+    "task:address": "hardhat task:address",
+  };
+
+  // Add counter-specific scripts only for fhe-counter
+  if (exampleName === 'fhe-counter') {
+    packageJson.scripts = {
+      ...packageJson.scripts,
+      "task:get": "hardhat task:decrypt-count",
+      "task:inc": "hardhat task:increment",
+      "task:dec": "hardhat task:decrement"
+    };
+  }
 
   if (extraDependencies) {
     packageJson.dependencies = { ...packageJson.dependencies, ...extraDependencies };
@@ -196,8 +266,35 @@ npx hardhat deploy --network sepolia
 npx hardhat verify --network sepolia <CONTRACT_ADDRESS>
 \`\`\`
 
+## Interaction
+
+This project includes Hardhat tasks to interact with the contract.
+
+1. **Start Local Chain** (Terminal 1)
+   \`\`\`bash
+   npm run chain
+   \`\`\`
+
+2. **Deploy Contract** (Terminal 2)
+   \`\`\`bash
+   npm run deploy:localhost
+   \`\`\`
+${exampleName === 'fhe-counter' ? `
+3. **Interact** (Terminal 2)
+   \`\`\`bash
+   # Get current count (decrypted)
+   npm run task:get -- --network localhost
+
+   # Increment by 5
+   npm run task:inc -- --network localhost --value 5
+
+   # Decrement by 2
+   npm run task:dec -- --network localhost --value 2
+   \`\`\`
+` : ''}
 ## Documentation
 
+- [Project Documentation](./docs/${exampleName}.md)
 - [FHEVM Documentation](https://docs.zama.ai/fhevm)
 - [FHEVM Examples](https://docs.zama.org/protocol/examples)
 - [FHEVM Hardhat Plugin](https://docs.zama.ai/protocol/solidity-guides/development-guide/hardhat)
@@ -304,8 +401,9 @@ export function createExample(exampleName: string, outputDir: string): void {
 
   // Step 4: Update configuration files
   log('\n⚙️  Step 4: Updating configuration...', Color.Cyan);
-  updateDeployScript(outputDir, contractName);
+  updateDeployScript(outputDir, contractName, destContractPath);
   updatePackageJson(outputDir, exampleName, example.description, example.extraDependencies);
+  updateHardhatConfig(outputDir, exampleName, contractName);
   success('Configuration updated');
 
   // Step 5: Generate README
@@ -318,32 +416,67 @@ export function createExample(exampleName: string, outputDir: string): void {
   log('\n🔧 Step 6: Updating tasks...', Color.Cyan);
   const tasksDir = path.join(outputDir, 'tasks');
   if (fs.existsSync(tasksDir)) {
-    // Update or remove contract-specific task file
     const oldTaskFile = path.join(tasksDir, 'FHECounter.ts');
-    const newTaskFile = path.join(tasksDir, `${contractName}.ts`);
 
-    if (fs.existsSync(oldTaskFile)) {
-      // Read the task file and replace FHECounter with the new contract name
-      let taskContent = fs.readFileSync(oldTaskFile, 'utf-8');
+    if (exampleName === 'fhe-counter') {
+      // Only keep/update the task file for fhe-counter example
+      const newTaskFile = path.join(tasksDir, `${contractName}.ts`);
+      
+      if (fs.existsSync(oldTaskFile)) {
+        // Read the task file and replace FHECounter with the new contract name
+        let taskContent = fs.readFileSync(oldTaskFile, 'utf-8');
 
-      // Replace all occurrences of FHECounter with the new contract name
-      taskContent = taskContent.replace(/FHECounter/g, contractName);
-      taskContent = taskContent.replace(/fheCounter/g, contractName.charAt(0).toLowerCase() + contractName.slice(1));
+        // Replace all occurrences of FHECounter with the new contract name
+        taskContent = taskContent.replace(/FHECounter/g, contractName);
+        taskContent = taskContent.replace(/fheCounter/g, contractName.charAt(0).toLowerCase() + contractName.slice(1));
 
-      // Write to new file
-      fs.writeFileSync(newTaskFile, taskContent);
+        // Write to new file
+        fs.writeFileSync(newTaskFile, taskContent);
 
-      // Remove old file if different name
-      if (oldTaskFile !== newTaskFile) {
-        fs.unlinkSync(oldTaskFile);
+        // Remove old file if different name
+        if (oldTaskFile !== newTaskFile) {
+          fs.unlinkSync(oldTaskFile);
+        }
+
+        success(`Updated tasks/${contractName}.ts`);
       }
-
-      success(`Updated tasks/${contractName}.ts`);
+    } else {
+      // For other examples, remove the FHECounter task as it's not relevant/compatible
+      if (fs.existsSync(oldTaskFile)) {
+        fs.unlinkSync(oldTaskFile);
+        success('Removed contract-specific tasks (only available for fhe-counter)');
+      }
     }
 
     // Keep accounts.ts as-is (it's generic)
-    success('Tasks directory preserved');
+    success('Tasks directory processed');
   }
+
+  // Step 7: Handle documentation
+  log('\n📚 Step 7: Setting up documentation...', Color.Cyan);
+  const docsDir = path.join(outputDir, 'docs');
+  
+  // Create docs directory if it doesn't exist
+  if (!fs.existsSync(docsDir)) {
+      fs.mkdirSync(docsDir);
+  }
+
+  // Clear existing docs from template
+  fs.readdirSync(docsDir).forEach(file => {
+      fs.unlinkSync(path.join(docsDir, file));
+  });
+
+  // Try to find specific documentation
+  const sourceDocPath = path.join(rootDir, 'docs', 'examples', example.category, `${exampleName}.md`);
+  if (fs.existsSync(sourceDocPath)) {
+      fs.copyFileSync(sourceDocPath, path.join(docsDir, `${exampleName}.md`));
+      success(`Documentation copied: ${exampleName}.md`);
+  } else {
+      info(`No specific documentation found for ${exampleName}, creating placeholder`);
+      const placeholderContent = `# ${exampleName}\n\nDocumentation coming soon.`;
+      fs.writeFileSync(path.join(docsDir, `${exampleName}.md`), placeholderContent);
+  }
+
   success('Cleanup complete');
 
   // Final summary
