@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: BSD-3-Clause-Clear
 pragma solidity ^0.8.24;
 
-import { ERC7984 } from "openzeppelin-confidential-contracts/contracts/token/ERC7984/ERC7984.sol";
-import { IERC7984 } from "openzeppelin-confidential-contracts/contracts/token/ERC7984/IERC7984.sol";
+import { ERC7984 } from "@openzeppelin/confidential-contracts/token/ERC7984/ERC7984.sol";
+import { IERC7984 } from "@openzeppelin/confidential-contracts/interfaces/IERC7984.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ZamaEthereumConfig } from "@fhevm/solidity/config/ZamaConfig.sol";
@@ -37,8 +37,9 @@ contract SwapERC7984ERC20 is ZamaEthereumConfig {
         euint64 amount = FHE.fromExternal(encryptedAmount, proof);
         
         // Transfer confidential tokens from Seller to Contract
-        // Seller must have approved this contract
-        confidentialToken.transferFrom(msg.sender, address(this), amount);
+        // Seller must have set this contract as operator
+        FHE.allow(amount, address(confidentialToken));
+        confidentialToken.confidentialTransferFrom(msg.sender, address(this), amount);
         
         orders[nextOrderId] = Order({
             seller: msg.sender,
@@ -64,7 +65,7 @@ contract SwapERC7984ERC20 is ZamaEthereumConfig {
         require(success, "Public token transfer failed");
         
         // 2. Transfer Confidential Token: Contract -> Buyer
-        confidentialToken.transfer(msg.sender, order.confidentialAmountSelling);
+        confidentialToken.confidentialTransfer(msg.sender, order.confidentialAmountSelling);
         
         order.active = false;
         emit OrderFilled(orderId, msg.sender);
@@ -79,8 +80,8 @@ contract MockERC20 is ERC20 {
     function mint(address to, uint256 amount) public { _mint(to, amount); }
 }
 
-contract MockConfidentialToken is ERC7984 {
-    constructor() ERC7984("Mock Private", "PRIV") {}
-    function mint(address to, uint64 amount) public { _mint(to, amount); }
+contract MockConfidentialToken is ERC7984, ZamaEthereumConfig {
+    constructor() ERC7984("Mock Private", "PRIV", "") {}
+    function mint(address to, uint64 amount) public { _mint(to, FHE.asEuint64(amount)); }
 }
 

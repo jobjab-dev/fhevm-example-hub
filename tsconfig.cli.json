@@ -1,0 +1,16 @@
+{
+    "extends": "./tsconfig.json",
+    "include": [
+        "src/cli/**/*.ts",
+        "scripts/**/*.ts"
+    ],
+    "compilerOptions": {
+        "outDir": "dist",
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "target": "ES2022",
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "resolveJsonModule": true
+    }
+}

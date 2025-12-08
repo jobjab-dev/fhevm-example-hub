@@ -16,11 +16,11 @@ const CATALOG_PATH = path.join(__dirname, '..', 'example-catalog.json');
 let EXAMPLES_MAP: Record<string, any> = {};
 
 try {
-    const catalogContent = fs.readFileSync(CATALOG_PATH, 'utf-8');
-    EXAMPLES_MAP = JSON.parse(catalogContent);
+  const catalogContent = fs.readFileSync(CATALOG_PATH, 'utf-8');
+  EXAMPLES_MAP = JSON.parse(catalogContent);
 } catch (e) {
-    console.error('Failed to load example catalog:', e);
-    process.exit(1);
+  console.error('Failed to load example catalog:', e);
+  process.exit(1);
 }
 
 // Color codes for terminal output
@@ -64,29 +64,29 @@ interface CategoryConfig {
 const CATEGORIES: Record<string, CategoryConfig> = {};
 
 Object.entries(EXAMPLES_MAP).forEach(([key, config]: [string, any]) => {
-    const catKey = config.category;
-    if (!CATEGORIES[catKey]) {
-        CATEGORIES[catKey] = {
-            name: `${catKey.charAt(0).toUpperCase() + catKey.slice(1)} Examples`,
-            description: `Collection of ${catKey} examples for FHEVM`,
-            contracts: []
-        };
-    }
-    
-    // Add contract item
-    CATEGORIES[catKey].contracts.push({
-        path: config.contract,
-        test: config.test,
-        // Fixture support if present in future schema
-        // fixture: config.fixture 
-    });
+  const catKey = config.category;
+  if (!CATEGORIES[catKey]) {
+    CATEGORIES[catKey] = {
+      name: `${catKey.charAt(0).toUpperCase() + catKey.slice(1)} Examples`,
+      description: `Collection of ${catKey} examples for FHEVM`,
+      contracts: []
+    };
+  }
 
-    // Special case for openzeppelin deps
-    if (catKey === 'openzeppelin') {
-        CATEGORIES[catKey].additionalDeps = {
-            '@openzeppelin/confidential-contracts': '^0.1.0'
-        };
-    }
+  // Add contract item
+  CATEGORIES[catKey].contracts.push({
+    path: config.contract,
+    test: config.test,
+    // Fixture support if present in future schema
+    // fixture: config.fixture 
+  });
+
+  // Special case for openzeppelin deps
+  if (catKey === 'openzeppelin') {
+    CATEGORIES[catKey].additionalDeps = {
+      '@openzeppelin/confidential-contracts': '^0.3.0'
+    };
+  }
 });
 
 function copyDirectoryRecursive(source: string, destination: string, excludeDirs: string[] = []): void {

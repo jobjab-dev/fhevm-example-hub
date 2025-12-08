@@ -11,6 +11,7 @@ contract LabInputProof is ZamaEthereumConfig {
     euint32 private _secureValue;
 
     constructor() {
+        _secureValue = FHE.asEuint32(0);
         FHE.allowThis(_secureValue);
     }
 

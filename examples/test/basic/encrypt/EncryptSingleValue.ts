@@ -86,7 +86,7 @@ describe("EncryptSingleValue", function () {
   });
 
   // ❌ This test illustrates a very common pitfall
-  it("encryption should fail", async function () {
+  it("encryption should fail if caller is not the signer", async function () {
     const fhevm: HardhatFhevmRuntimeEnvironment = hre.fhevm;
 
     const enc = await fhevm.createEncryptedInput(contractAddress, signers.alice.address).add32(123456).encrypt();
@@ -94,18 +94,16 @@ describe("EncryptSingleValue", function () {
     const inputEuint32 = enc.handles[0];
     const inputProof = enc.inputProof;
 
-    try {
-      // Here is a very common error !
-      // `contract.initialize` will sign the Ethereum transaction using user `signers.owner`
-      // instead of `signers.alice`.
-      //
-      // In the Solidity contract the following is checked:
-      // - Is the contract allowed to manipulate `inputEuint32`? Answer is: ✅ yes!
-      // - Is the sender allowed to manipulate `inputEuint32`? Answer is: ❌ no! Only `signers.alice` is!
-      const tx = await contract.initialize(inputEuint32, inputProof);
-      await tx.wait();
-    } catch {
-      //console.log(e);
-    }
+    // Here is a very common error !
+    // `contract.initialize` will sign the Ethereum transaction using user `signers.owner`
+    // instead of `signers.alice`.
+    //
+    // In the Solidity contract the following is checked:
+    // - Is the contract allowed to manipulate `inputEuint32`? Answer is: ✅ yes!
+    // - Is the sender allowed to manipulate `inputEuint32`? Answer is: ❌ no! Only `signers.alice` is!
+
+    await expect(
+      contract.initialize(inputEuint32, inputProof)
+    ).to.be.reverted;
   });
 });

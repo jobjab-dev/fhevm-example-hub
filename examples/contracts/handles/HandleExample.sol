@@ -17,7 +17,7 @@ contract HandleExample is ZamaEthereumConfig {
     /// @notice Returns the raw handle ID for the stored value.
     /// @dev Handles are just uint256 identifiers pointing to data in the Coprocessor/Validator memory.
     function getHandle() external view returns (uint256) {
-        return euint32.unwrap(_storedValue);
+        return uint256(euint32.unwrap(_storedValue));
     }
 
     /// @notice Demonstrates that operations produce NEW handles.
@@ -33,7 +33,7 @@ contract HandleExample is ZamaEthereumConfig {
         euint32 res = FHE.add(val, FHE.asEuint32(1));
         FHE.allowThis(res);
 
-        return (euint32.unwrap(val), euint32.unwrap(res));
+        return (uint256(euint32.unwrap(val)), uint256(euint32.unwrap(res)));
     }
 }
 

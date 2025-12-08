@@ -33,42 +33,42 @@ describe("ERC7984Example", function () {
     await contract.mint(signers.alice.address, 100);
 
     // Check balance (encrypted)
-    const balanceHandle = await contract.balanceOf(signers.alice.address);
+    const balanceHandle = await contract.confidentialBalanceOf(signers.alice.address);
     // User decrypt
     const balance = await fhevm.userDecryptEuint(
-        FhevmType.euint64,
-        balanceHandle,
-        contractAddress,
-        signers.alice
+      FhevmType.euint64,
+      balanceHandle,
+      contractAddress,
+      signers.alice
     );
     expect(balance).to.equal(100);
 
     // Transfer 10 from Alice to Bob
     // Alice needs to encrypt the amount
     const inputAmount = await fhevm.createEncryptedInput(contractAddress, signers.alice.address)
-        .add64(10)
-        .encrypt();
-    
+      .add64(10)
+      .encrypt();
+
     // Using our helper transferExternal
     await contract.connect(signers.alice).transferExternal(signers.bob.address, inputAmount.handles[0], inputAmount.inputProof);
 
     // Check Bob's balance
-    const bobBalanceHandle = await contract.balanceOf(signers.bob.address);
+    const bobBalanceHandle = await contract.confidentialBalanceOf(signers.bob.address);
     const bobBalance = await fhevm.userDecryptEuint(
-        FhevmType.euint64,
-        bobBalanceHandle,
-        contractAddress,
-        signers.bob
+      FhevmType.euint64,
+      bobBalanceHandle,
+      contractAddress,
+      signers.bob
     );
     expect(bobBalance).to.equal(10);
-    
+
     // Check Alice's balance
-    const aliceNewBalanceHandle = await contract.balanceOf(signers.alice.address);
+    const aliceNewBalanceHandle = await contract.confidentialBalanceOf(signers.alice.address);
     const aliceNewBalance = await fhevm.userDecryptEuint(
-        FhevmType.euint64,
-        aliceNewBalanceHandle,
-        contractAddress,
-        signers.alice
+      FhevmType.euint64,
+      aliceNewBalanceHandle,
+      contractAddress,
+      signers.alice
     );
     expect(aliceNewBalance).to.equal(90);
   });

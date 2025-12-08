@@ -34,7 +34,7 @@ describe("ERC20WrapperExample", function () {
    * @summary Wraps a public ERC20 token into a confidential ERC7984 token.
    */
   it("should wrap public ERC20 to confidential token", async function () {
-    const amount = 1000;
+    const amount = 1000000000000000; // 1000 * 1e12 to ensure it wraps correctly with 18 decimals -> 6 decimals
 
     // Mint public tokens to Alice
     await mockToken.mint(signers.alice.address, amount);
@@ -44,7 +44,7 @@ describe("ERC20WrapperExample", function () {
     await mockToken.connect(signers.alice).approve(wrapperAddress, amount);
 
     // Alice deposits for herself (Public amount in -> Private amount out)
-    await wrapper.connect(signers.alice).depositFor(signers.alice.address, amount);
+    await wrapper.connect(signers.alice).wrap(signers.alice.address, amount);
 
     // Check public balance (should be 0)
     expect(await mockToken.balanceOf(signers.alice.address)).to.equal(0);
@@ -52,14 +52,14 @@ describe("ERC20WrapperExample", function () {
     expect(await mockToken.balanceOf(wrapperAddress)).to.equal(amount);
 
     // Check confidential balance
-    const balanceHandle = await wrapper.balanceOf(signers.alice.address);
+    const balanceHandle = await wrapper.confidentialBalanceOf(signers.alice.address);
     const balance = await fhevm.userDecryptEuint(
-        FhevmType.euint64,
-        balanceHandle,
-        wrapperAddress,
-        signers.alice
+      FhevmType.euint64,
+      balanceHandle,
+      wrapperAddress,
+      signers.alice
     );
-    expect(balance).to.equal(amount);
+    expect(balance).to.equal(amount / 1000000000000);
   });
 });
 

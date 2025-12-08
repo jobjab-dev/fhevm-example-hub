@@ -144,7 +144,7 @@ describe("FHECounter", function () {
         FhevmType.euint32,
         encryptedCount,
         fheCounterContractAddress,
-        signers.alice,
+        signers.bob,
       );
       expect(count).to.eq(3);
     });

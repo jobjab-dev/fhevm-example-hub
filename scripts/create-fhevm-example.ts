@@ -1,4 +1,4 @@
-#!/usr/bin/env ts-node
+#!/usr/bin/env node
 
 /**
  * create-fhevm-example - CLI tool to generate standalone FHEVM example repositories
@@ -8,19 +8,34 @@
  * Example: ts-node scripts/create-fhevm-example.ts fhe-counter ./my-fhe-counter
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-// Load catalog
-const CATALOG_PATH = path.join(__dirname, '..', 'example-catalog.json');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+function getProjectRoot() {
+  const p1 = path.resolve(__dirname, '..');
+  const p2 = path.resolve(__dirname, '../..');
+  const p3 = path.resolve(__dirname, '../../..');
+
+  if (fs.existsSync(path.join(p1, 'example-catalog.json'))) return p1;
+  if (fs.existsSync(path.join(p2, 'example-catalog.json'))) return p2;
+  if (fs.existsSync(path.join(p3, 'example-catalog.json'))) return p3;
+  return p1;
+}
+
+const PROJECT_ROOT = getProjectRoot();
+const CATALOG_PATH = path.join(PROJECT_ROOT, 'example-catalog.json');
 let EXAMPLES_MAP: Record<string, any> = {};
 
 try {
-    const catalogContent = fs.readFileSync(CATALOG_PATH, 'utf-8');
-    EXAMPLES_MAP = JSON.parse(catalogContent);
+  const catalogContent = fs.readFileSync(CATALOG_PATH, 'utf-8');
+  EXAMPLES_MAP = JSON.parse(catalogContent);
 } catch (e) {
-    console.error('Failed to load example catalog:', e);
-    process.exit(1);
+  console.error('Failed to load example catalog:', e);
+  process.exit(1);
 }
 
 // Color codes for terminal output
@@ -57,7 +72,7 @@ function copyDirectoryRecursive(source: string, destination: string): void {
 
   // Create subdirectories if they don't exist
   if (!fs.existsSync(destination)) {
-      fs.mkdirSync(destination, { recursive: true });
+    fs.mkdirSync(destination, { recursive: true });
   }
 
   const items = fs.readdirSync(source);
@@ -106,16 +121,16 @@ function getConstructorArgs(contractPath: string, contractName: string): string[
   // Find the specific contract block
   const contractRegex = new RegExp(`contract\\s+${contractName}\\s*(?:is\\s+[^{]+)?\\s*\\{([\\s\\S]*?)\\}`, 'm');
   const match = content.match(contractRegex);
-  
+
   if (!match) return [];
-  
+
   const contractBody = match[1];
   // Find constructor within that contract
   const ctorRegex = /constructor\s*\(([^)]*)\)/;
   const ctorMatch = contractBody.match(ctorRegex);
-  
+
   if (!ctorMatch || !ctorMatch[1].trim()) return [];
-  
+
   // Return the raw arguments string to be parsed or displayed
   return ctorMatch[1].split(',').map(arg => arg.trim());
 }
@@ -132,7 +147,7 @@ function updateDeployScript(outputDir: string, contractName: string, contractPat
     // TODO: Constructor arguments required:
     // ${args.join('\n    // ')}
     args: [], // <--- Fill these in!`;
-    
+
     deployLog = `
   if (!deployed${contractName}.address) {
     console.warn("Deploy failed (or dry run). Check constructor args in deploy/deploy.ts");
@@ -220,7 +235,13 @@ ${description}
 
    \`\`\`bash
    npx hardhat vars set MNEMONIC
-   npx hardhat vars set INFURA_API_KEY
+   # OR use a Private Key
+   npx hardhat vars set PRIVATE_KEY
+
+   # [OPTIONAL] Set custom Sepolia RPC URL (Defaults to public node)
+   # If you want to use Alchemy, Infura, etc., set it here.
+   npx hardhat vars set SEPOLIA_RPC_URL
+
    # Optional: Set Etherscan API key for contract verification
    npx hardhat vars set ETHERSCAN_API_KEY
    \`\`\`
@@ -256,6 +277,11 @@ Deploy to local network:
 
 \`\`\`bash
 npx hardhat node
+\`\`\`
+
+In a simpler terminal:
+
+\`\`\`bash
 npx hardhat deploy --network localhost
 \`\`\`
 
@@ -347,10 +373,10 @@ export function createExample(exampleName: string, outputDir: string): void {
   if (!contractName) {
     error('Could not extract contract name from contract file');
   }
-  
+
   const contractsDir = path.join(outputDir, 'contracts');
   if (!fs.existsSync(contractsDir)) {
-      fs.mkdirSync(contractsDir, { recursive: true });
+    fs.mkdirSync(contractsDir, { recursive: true });
   }
 
   const destContractPath = path.join(outputDir, 'contracts', `${contractName}.sol`);
@@ -363,7 +389,7 @@ export function createExample(exampleName: string, outputDir: string): void {
 
   const contractDir = path.dirname(destContractPath);
   if (!fs.existsSync(contractDir)) {
-      fs.mkdirSync(contractDir, { recursive: true });
+    fs.mkdirSync(contractDir, { recursive: true });
   }
 
   fs.copyFileSync(contractPath, destContractPath);
@@ -383,7 +409,7 @@ export function createExample(exampleName: string, outputDir: string): void {
 
   const testDirName = path.dirname(destTestPath);
   if (!fs.existsSync(testDirName)) {
-      fs.mkdirSync(testDirName, { recursive: true });
+    fs.mkdirSync(testDirName, { recursive: true });
   }
 
   fs.copyFileSync(testPath, destTestPath);
@@ -421,7 +447,7 @@ export function createExample(exampleName: string, outputDir: string): void {
     if (exampleName === 'fhe-counter') {
       // Only keep/update the task file for fhe-counter example
       const newTaskFile = path.join(tasksDir, `${contractName}.ts`);
-      
+
       if (fs.existsSync(oldTaskFile)) {
         // Read the task file and replace FHECounter with the new contract name
         let taskContent = fs.readFileSync(oldTaskFile, 'utf-8');
@@ -455,26 +481,26 @@ export function createExample(exampleName: string, outputDir: string): void {
   // Step 7: Handle documentation
   log('\n📚 Step 7: Setting up documentation...', Color.Cyan);
   const docsDir = path.join(outputDir, 'docs');
-  
+
   // Create docs directory if it doesn't exist
   if (!fs.existsSync(docsDir)) {
-      fs.mkdirSync(docsDir);
+    fs.mkdirSync(docsDir);
   }
 
   // Clear existing docs from template
   fs.readdirSync(docsDir).forEach(file => {
-      fs.unlinkSync(path.join(docsDir, file));
+    fs.unlinkSync(path.join(docsDir, file));
   });
 
   // Try to find specific documentation
   const sourceDocPath = path.join(rootDir, 'docs', 'examples', example.category, `${exampleName}.md`);
   if (fs.existsSync(sourceDocPath)) {
-      fs.copyFileSync(sourceDocPath, path.join(docsDir, `${exampleName}.md`));
-      success(`Documentation copied: ${exampleName}.md`);
+    fs.copyFileSync(sourceDocPath, path.join(docsDir, `${exampleName}.md`));
+    success(`Documentation copied: ${exampleName}.md`);
   } else {
-      info(`No specific documentation found for ${exampleName}, creating placeholder`);
-      const placeholderContent = `# ${exampleName}\n\nDocumentation coming soon.`;
-      fs.writeFileSync(path.join(docsDir, `${exampleName}.md`), placeholderContent);
+    info(`No specific documentation found for ${exampleName}, creating placeholder`);
+    const placeholderContent = `# ${exampleName}\n\nDocumentation coming soon.`;
+    fs.writeFileSync(path.join(docsDir, `${exampleName}.md`), placeholderContent);
   }
 
   success('Cleanup complete');
@@ -514,7 +540,8 @@ function main(): void {
   createExample(exampleName, outputDir);
 }
 
-if (require.main === module) {
+if (process.argv[1] === __filename) {
   main();
 }
+
 export { EXAMPLES_MAP };

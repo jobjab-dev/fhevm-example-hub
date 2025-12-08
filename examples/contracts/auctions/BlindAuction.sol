@@ -4,11 +4,16 @@ pragma solidity ^0.8.24;
 import { FHE, euint32, ebool, externalEuint32 } from "@fhevm/solidity/lib/FHE.sol";
 import { ZamaEthereumConfig } from "@fhevm/solidity/config/ZamaConfig.sol";
 
+interface IGateway {
+    function requestDecryption(uint256[] calldata ctsHandles, bytes4 callbackSelector, uint256 msgValue, uint256 maxTimestamp, bool passSignaturesToCaller) external returns (uint256);
+}
+
 contract BlindAuction is ZamaEthereumConfig {
     euint32 private _highestBid;
     bool public ended;
     address public beneficiary;
     uint32 public clearHighestBid;
+    address public gateway;
 
     mapping(address => euint32) private _bids;
 
@@ -19,10 +24,11 @@ contract BlindAuction is ZamaEthereumConfig {
     event BidPlaced(address indexed user);
     event WinnerClaimed(address indexed user, bool result);
 
-    constructor() {
+    constructor(address _gateway) {
         _highestBid = FHE.asEuint32(0);
         FHE.allowThis(_highestBid);
         beneficiary = msg.sender;
+        gateway = _gateway;
     }
 
     function bid(externalEuint32 input, bytes calldata inputProof) external {
@@ -46,14 +52,14 @@ contract BlindAuction is ZamaEthereumConfig {
         ended = true;
 
         uint256[] memory cts = new uint256[](1);
-        cts[0] = euint32.unwrap(_highestBid);
-        FHE.req(cts, this.onStopCallback.selector);
+        cts[0] = uint256(euint32.unwrap(_highestBid));
+        IGateway(gateway).requestDecryption(cts, this.onStopCallback.selector, 0, block.timestamp + 100, false);
     }
 
-    function onStopCallback(uint256 /*requestID*/, uint32 decryptedBid) external {
+    function onStopCallback(uint256 /*requestID*/, uint256 decryptedBid) external {
         // Ideally enforce onlyCOPROCESSOR here
-        clearHighestBid = decryptedBid;
-        emit AuctionEnded(decryptedBid);
+        clearHighestBid = uint32(decryptedBid);
+        emit AuctionEnded(clearHighestBid);
     }
 
     function claim() external {
@@ -64,14 +70,15 @@ contract BlindAuction is ZamaEthereumConfig {
         ebool isWinner = FHE.eq(myBid, FHE.asEuint32(clearHighestBid));
         
         uint256[] memory cts = new uint256[](1);
-        cts[0] = ebool.unwrap(isWinner);
+        cts[0] = uint256(ebool.unwrap(isWinner));
         
-        uint256 reqID = FHE.req(cts, this.onClaimCallback.selector);
+        uint256 reqID = IGateway(gateway).requestDecryption(cts, this.onClaimCallback.selector, 0, block.timestamp + 100, false);
         claimRequests[reqID] = msg.sender;
     }
     
-    function onClaimCallback(uint256 requestID, bool isWinner) external {
+    function onClaimCallback(uint256 requestID, uint256 isWinnerVal) external {
         // Ideally enforce onlyCOPROCESSOR here
+        bool isWinner = isWinnerVal == 1;
         address user = claimRequests[requestID];
         delete claimRequests[requestID];
         
@@ -83,3 +90,24 @@ contract BlindAuction is ZamaEthereumConfig {
     }
 }
 
+contract MockGateway {
+    event RequestDecryption(uint256[] handles, bytes4 selector, address callbackTarget);
+
+    uint256 public nextReqId;
+
+    function requestDecryption(
+        uint256[] calldata handles,
+        bytes4 selector,
+        uint256 /*msgValue*/,
+        uint256 /*maxTimestamp*/,
+        bool /*passSignaturesToCaller*/
+    ) external returns (uint256) {
+        emit RequestDecryption(handles, selector, msg.sender);
+        return nextReqId++;
+    }
+
+    function fulfillRequest(address target, bytes4 selector, uint256 reqId, uint256 decryptedValue) external {
+        (bool success, ) = target.call(abi.encodeWithSelector(selector, reqId, decryptedValue));
+        require(success, "Callback failed");
+    }
+}

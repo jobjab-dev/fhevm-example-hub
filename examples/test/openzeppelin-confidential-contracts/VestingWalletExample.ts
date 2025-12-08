@@ -32,20 +32,20 @@ describe("VestingWalletExample", function () {
     // Deploy Vesting Wallet
     const vestingFactory = await ethers.getContractFactory("VestingWalletExample");
     vesting = (await vestingFactory.deploy(
-        tokenAddress, 
-        signers.beneficiary.address, 
-        startTimestamp, 
-        DURATION
+      tokenAddress,
+      signers.beneficiary.address,
+      startTimestamp,
+      DURATION
     )) as VestingWalletExample;
     vestingAddress = await vesting.getAddress();
 
     // Mint and Initialize
     await token.mint(signers.deployer.address, ALLOCATION);
-    await token.connect(signers.deployer).approve(vestingAddress, ALLOCATION);
+    await token.connect(signers.deployer).setOperator(vestingAddress, "281474976710655");
 
     const input = await fhevm.createEncryptedInput(vestingAddress, signers.deployer.address)
-        .add64(ALLOCATION)
-        .encrypt();
+      .add64(ALLOCATION)
+      .encrypt();
 
     await vesting.initialize(input.handles[0], input.inputProof);
   });
@@ -63,35 +63,35 @@ describe("VestingWalletExample", function () {
 
     // 2. Advance to 50% duration
     await time.increaseTo(startTimestamp + DURATION / 2);
-    
+
     // Release
     await vesting.release();
 
     // Check Beneficiary Balance (should be ~500)
-    const balanceHandle = await token.balanceOf(signers.beneficiary.address);
+    const balanceHandle = await token.confidentialBalanceOf(signers.beneficiary.address);
     const balance = await fhevm.userDecryptEuint(
-        FhevmType.euint64,
-        balanceHandle,
-        tokenAddress,
-        signers.beneficiary
+      FhevmType.euint64,
+      balanceHandle,
+      tokenAddress,
+      signers.beneficiary
     );
-    
+
     // Allow small margin of error for time precision
     expect(balance).to.be.closeTo(500, 5);
 
     // 3. Advance to end
     await time.increaseTo(startTimestamp + DURATION + 1);
-    
+
     // Release remaining
     await vesting.release();
 
     // Check Beneficiary Balance (should be 1000)
-    const finalBalanceHandle = await token.balanceOf(signers.beneficiary.address);
+    const finalBalanceHandle = await token.confidentialBalanceOf(signers.beneficiary.address);
     const finalBalance = await fhevm.userDecryptEuint(
-        FhevmType.euint64,
-        finalBalanceHandle,
-        tokenAddress,
-        signers.beneficiary
+      FhevmType.euint64,
+      finalBalanceHandle,
+      tokenAddress,
+      signers.beneficiary
     );
     expect(finalBalance).to.equal(ALLOCATION);
   });

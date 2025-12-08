@@ -13,3 +13,4 @@ tmp/
 
 .env
 validation_output/
+generated/

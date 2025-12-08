@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: BSD-3-Clause-Clear
 pragma solidity ^0.8.24;
 
-import { ERC7984 } from "openzeppelin-confidential-contracts/contracts/token/ERC7984/ERC7984.sol";
-import { IERC7984 } from "openzeppelin-confidential-contracts/contracts/token/ERC7984/IERC7984.sol";
+import { ERC7984 } from "@openzeppelin/confidential-contracts/token/ERC7984/ERC7984.sol";
+import { IERC7984 } from "@openzeppelin/confidential-contracts/interfaces/IERC7984.sol";
 import { ZamaEthereumConfig } from "@fhevm/solidity/config/ZamaConfig.sol";
 import { FHE, euint64, externalEuint64, ebool } from "@fhevm/solidity/lib/FHE.sol";
 
@@ -43,7 +43,8 @@ contract SwapERC7984ERC7984 is ZamaEthereumConfig {
         euint64 askAmountB = FHE.fromExternal(encryptedAskAmountB, proofB);
         
         // Lock Token A from Maker
-        tokenA.transferFrom(msg.sender, address(this), amountA);
+        FHE.allow(amountA, address(tokenA));
+        tokenA.confidentialTransferFrom(msg.sender, address(this), amountA);
         
         orders[nextOrderId] = Order({
             maker: msg.sender,
@@ -71,22 +72,35 @@ contract SwapERC7984ERC7984 is ZamaEthereumConfig {
         // Check if Taker sent enough Token B
         ebool isEnough = FHE.eq(amountB, order.askAmountB);
         
-        // Enforce the check (Reverts if false)
-        // Note: This reveals whether the amount was correct.
-        FHE.req(isEnough);
+        // Conditional swap based on amount check
+        euint64 zero = FHE.asEuint64(0);
+        
+        // If enough, transfer amountB; else transfer 0
+        euint64 amountBToTransfer = FHE.select(isEnough, amountB, zero);
+        
+        // If enough, transfer amountA; else transfer 0
+        euint64 amountAToTransfer = FHE.select(isEnough, order.amountA, zero);
 
-        // Lock Token B from Taker
-        tokenB.transferFrom(msg.sender, address(this), amountB);
+        // Lock Token B from Taker (transfer conditional amount)
+        FHE.allow(amountBToTransfer, address(tokenB));
+        tokenB.confidentialTransferFrom(msg.sender, address(this), amountBToTransfer);
         
         // Swap:
         // Token A -> Taker
-        tokenA.transfer(msg.sender, order.amountA);
+        FHE.allow(amountAToTransfer, address(tokenA));
+        tokenA.confidentialTransfer(msg.sender, amountAToTransfer);
         
         // Token B -> Maker
-        tokenB.transfer(order.maker, amountB);
+        FHE.allow(amountBToTransfer, address(tokenB));
+        tokenB.confidentialTransfer(order.maker, amountBToTransfer);
         
         order.active = false;
         emit OrderFilled(orderId, msg.sender);
     }
+}
+
+contract MockConfidentialToken is ERC7984, ZamaEthereumConfig {
+    constructor() ERC7984("Mock Private", "PRIV", "") {}
+    function mint(address to, uint64 amount) public { _mint(to, FHE.asEuint64(amount)); }
 }
 

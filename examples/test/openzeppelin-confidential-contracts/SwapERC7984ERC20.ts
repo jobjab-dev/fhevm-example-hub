@@ -45,7 +45,7 @@ describe("SwapERC7984ERC20", function () {
 
     // Setup Alice (Seller): Has Confidential Token
     await confidentialToken.mint(signers.alice.address, sellAmount);
-    await confidentialToken.connect(signers.alice).approve(swapAddress, sellAmount);
+    await confidentialToken.connect(signers.alice).setOperator(swapAddress, "281474976710655");
 
     // Setup Bob (Buyer): Has Public Token
     await publicToken.mint(signers.bob.address, buyAmount);
@@ -54,13 +54,13 @@ describe("SwapERC7984ERC20", function () {
     // Alice creates order
     // Encrypt amount
     const input = await fhevm.createEncryptedInput(swapAddress, signers.alice.address)
-        .add64(sellAmount)
-        .encrypt();
+      .add64(sellAmount)
+      .encrypt();
 
     await swapContract.connect(signers.alice).createOrder(input.handles[0], input.inputProof, buyAmount);
 
     // Check: Alice's confidential balance should be 0 (transferred to contract)
-    const aliceBalanceHandle = await confidentialToken.balanceOf(signers.alice.address);
+    const aliceBalanceHandle = await confidentialToken.confidentialBalanceOf(signers.alice.address);
     const aliceBalance = await fhevm.userDecryptEuint(FhevmType.euint64, aliceBalanceHandle, confTokenAddress, signers.alice);
     expect(aliceBalance).to.equal(0);
 
@@ -68,7 +68,7 @@ describe("SwapERC7984ERC20", function () {
     await swapContract.connect(signers.bob).fillOrder(0);
 
     // Check: Bob's confidential balance should be 100
-    const bobBalanceHandle = await confidentialToken.balanceOf(signers.bob.address);
+    const bobBalanceHandle = await confidentialToken.confidentialBalanceOf(signers.bob.address);
     const bobBalance = await fhevm.userDecryptEuint(FhevmType.euint64, bobBalanceHandle, confTokenAddress, signers.bob);
     expect(bobBalance).to.equal(sellAmount);
 

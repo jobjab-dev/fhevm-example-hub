@@ -1,7 +1,12 @@
-import * as fs from 'fs';
-import * as path from 'path';
+import fs from 'fs';
+import path from 'path';
 import { execSync } from 'child_process';
-import { EXAMPLES_MAP, createExample } from './create-fhevm-example';
+import { fileURLToPath } from 'url';
+// @ts-ignore
+import { EXAMPLES_MAP, createExample } from './create-fhevm-example.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const OUTPUT_BASE = path.join(__dirname, '..', 'validation_output');
 
@@ -24,25 +29,25 @@ async function validateAll() {
         log(`---------------------------------------------------`);
         log(`Validating example: ${example}`);
         const exampleDir = path.join(OUTPUT_BASE, example);
-        
+
         try {
             // 1. Generate
             log(`  Generating...`);
             createExample(example, exampleDir);
-            
+
             // 2. Install dependencies
             // To speed this up in a dev environment, we could symlink node_modules, but for product validation we should install.
             log(`  Installing dependencies (this may take a while)...`);
             execSync('npm install', { cwd: exampleDir, stdio: 'ignore' });
-            
+
             // 3. Compile
             log(`  Compiling...`);
             execSync('npm run compile', { cwd: exampleDir, stdio: 'pipe' });
-            
+
             // 4. Test
             log(`  Testing...`);
             execSync('npm run test', { cwd: exampleDir, stdio: 'pipe' });
-            
+
             log(`✅ ${example} passed`);
         } catch (e: any) {
             log(`❌ ${example} FAILED`);
@@ -63,7 +68,7 @@ async function validateAll() {
     }
 }
 
-if (require.main === module) {
+if (process.argv[1] === __filename) {
     validateAll();
 }
 
