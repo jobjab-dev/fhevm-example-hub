@@ -30,11 +30,11 @@ describe("FHEOperations", function () {
     const valB = 5;
 
     const inputA = await fhevm.createEncryptedInput(contractAddress, signers.deployer.address)
-        .add8(valA)
-        .encrypt();
+      .add8(valA)
+      .encrypt();
     const inputB = await fhevm.createEncryptedInput(contractAddress, signers.deployer.address)
-        .add8(valB)
-        .encrypt();
+      .add8(valB)
+      .encrypt();
 
     await contract.setValues(inputA.handles[0], inputA.inputProof, inputB.handles[0], inputB.inputProof);
 
@@ -68,7 +68,7 @@ describe("FHEOperations", function () {
       .encrypt();
 
     await contract.setValues(inputA.handles[0], inputA.inputProof, inputB.handles[0], inputB.inputProof);
-    
+
     // Check equality (10 == 10)
     await contract.checkEqual();
     const isEqHandle = await contract.isEqualResult();
@@ -79,13 +79,44 @@ describe("FHEOperations", function () {
     const inputB2 = await fhevm.createEncryptedInput(contractAddress, signers.deployer.address)
       .add8(5)
       .encrypt();
-    
+
     await contract.setValues(inputA.handles[0], inputA.inputProof, inputB2.handles[0], inputB2.inputProof);
-    
+
     await contract.checkEqual();
     const isEqHandle2 = await contract.isEqualResult();
     const isEq2 = await fhevm.userDecryptEuint(FhevmType.euint8, isEqHandle2, contractAddress, signers.deployer);
     expect(isEq2).to.equal(0); // 0 means false
+  });
+  describe("Edge Cases", function () {
+    it("should handle overflow (255 + 1 = 0)", async function () {
+      const inputA = await fhevm.createEncryptedInput(contractAddress, signers.deployer.address)
+        .add8(255)
+        .encrypt();
+      const inputB = await fhevm.createEncryptedInput(contractAddress, signers.deployer.address)
+        .add8(1)
+        .encrypt();
+
+      await contract.setValues(inputA.handles[0], inputA.inputProof, inputB.handles[0], inputB.inputProof);
+      await contract.add();
+      const sumHandle = await contract.sum();
+      const sum = await fhevm.userDecryptEuint(FhevmType.euint8, sumHandle, contractAddress, signers.deployer);
+      expect(sum).to.equal(0);
+    });
+
+    it("should handle underflow (0 - 1 = 255)", async function () {
+      const inputA = await fhevm.createEncryptedInput(contractAddress, signers.deployer.address)
+        .add8(0)
+        .encrypt();
+      const inputB = await fhevm.createEncryptedInput(contractAddress, signers.deployer.address)
+        .add8(1)
+        .encrypt();
+
+      await contract.setValues(inputA.handles[0], inputA.inputProof, inputB.handles[0], inputB.inputProof);
+      await contract.sub();
+      const diffHandle = await contract.diff();
+      const diff = await fhevm.userDecryptEuint(FhevmType.euint8, diffHandle, contractAddress, signers.deployer);
+      expect(diff).to.equal(255);
+    });
   });
 });
 

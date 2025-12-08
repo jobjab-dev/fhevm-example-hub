@@ -101,4 +101,52 @@ describe("FHECounter", function () {
 
     expect(clearCountAfterInc).to.eq(0);
   });
+  describe("Complex Interactions", function () {
+    it("should handle underflow (0 - 1 = MAX_UINT32)", async function () {
+      const clearOne = 1;
+      const encryptedOne = await fhevm
+        .createEncryptedInput(fheCounterContractAddress, signers.deployer.address)
+        .add32(clearOne)
+        .encrypt();
+
+      await fheCounterContract.connect(signers.deployer).decrement(encryptedOne.handles[0], encryptedOne.inputProof);
+
+      const encryptedCount = await fheCounterContract.getCount();
+      const count = await fhevm.userDecryptEuint(
+        FhevmType.euint32,
+        encryptedCount,
+        fheCounterContractAddress,
+        signers.deployer,
+      );
+      // for euint32, underflow 0-1 gives 2^32 - 1 = 4294967295
+      expect(count).to.eq(4294967295n);
+    });
+
+    it("should allow multiple users to increment", async function () {
+      // Alice increments by 1
+      const inputAlice = await fhevm
+        .createEncryptedInput(fheCounterContractAddress, signers.alice.address)
+        .add32(1)
+        .encrypt();
+      await fheCounterContract.connect(signers.alice).increment(inputAlice.handles[0], inputAlice.inputProof);
+
+      // Bob increments by 2
+      const inputBob = await fhevm
+        .createEncryptedInput(fheCounterContractAddress, signers.bob.address)
+        .add32(2)
+        .encrypt();
+      await fheCounterContract.connect(signers.bob).increment(inputBob.handles[0], inputBob.inputProof);
+
+      const encryptedCount = await fheCounterContract.getCount();
+      // Alice decrypts to verify total is 3 (1+2 from initialized 0, assuming previous tests didn't dirty state 
+      // but actually beforeEach redeploys so it is fresh 0)
+      const count = await fhevm.userDecryptEuint(
+        FhevmType.euint32,
+        encryptedCount,
+        fheCounterContractAddress,
+        signers.alice,
+      );
+      expect(count).to.eq(3);
+    });
+  });
 });

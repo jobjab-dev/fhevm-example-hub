@@ -79,4 +79,37 @@ describe("FHEIfThenElse", function () {
 
     expect(clearMax).to.equal(a >= b ? a : b);
   });
+
+  it("should succeed when A > B", async function () {
+    const fhevm: HardhatFhevmRuntimeEnvironment = hre.fhevm;
+    const a = 200;
+    const b = 100;
+
+    const inputA = await fhevm.createEncryptedInput(contractAddress, signers.alice.address).add8(a).encrypt();
+    await (await contract.connect(signers.alice).setA(inputA.handles[0], inputA.inputProof)).wait();
+
+    const inputB = await fhevm.createEncryptedInput(contractAddress, signers.alice.address).add8(b).encrypt();
+    await (await contract.connect(signers.alice).setB(inputB.handles[0], inputB.inputProof)).wait();
+
+    await (await contract.connect(bob).computeMax()).wait();
+    const encryptedMax = await contract.result();
+    const clearMax = await fhevm.userDecryptEuint(FhevmType.euint8, encryptedMax, contractAddress, bob);
+    expect(clearMax).to.equal(200);
+  });
+
+  it("should succeed when A == B", async function () {
+    const fhevm: HardhatFhevmRuntimeEnvironment = hre.fhevm;
+    const val = 50;
+
+    const inputA = await fhevm.createEncryptedInput(contractAddress, signers.alice.address).add8(val).encrypt();
+    await (await contract.connect(signers.alice).setA(inputA.handles[0], inputA.inputProof)).wait();
+
+    const inputB = await fhevm.createEncryptedInput(contractAddress, signers.alice.address).add8(val).encrypt();
+    await (await contract.connect(signers.alice).setB(inputB.handles[0], inputB.inputProof)).wait();
+
+    await (await contract.connect(bob).computeMax()).wait();
+    const encryptedMax = await contract.result();
+    const clearMax = await fhevm.userDecryptEuint(FhevmType.euint8, encryptedMax, contractAddress, bob);
+    expect(clearMax).to.equal(50);
+  });
 });
