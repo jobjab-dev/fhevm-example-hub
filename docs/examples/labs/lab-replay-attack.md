@@ -46,6 +46,7 @@ contract LabReplayAttack is ZamaEthereumConfig {
          // If I call this twice with the same input, I add amount twice.
          _balances[msg.sender] = FHE.add(_balances[msg.sender], amount);
          FHE.allowThis(_balances[msg.sender]);
+         FHE.allow(_balances[msg.sender], msg.sender);
     }
 
     /// @notice Secure function: Checks state to prevent double action
@@ -55,6 +56,7 @@ contract LabReplayAttack is ZamaEthereumConfig {
         euint64 amount = FHE.fromExternal(input, proof);
         _balances[msg.sender] = FHE.add(_balances[msg.sender], amount);
         FHE.allowThis(_balances[msg.sender]);
+        FHE.allow(_balances[msg.sender], msg.sender);
         
         hasClaimed[msg.sender] = true;
     }
@@ -141,7 +143,7 @@ describe("LabReplayAttack", function () {
 To generate this example locally:
 
 ```bash
-npx run create lab-replay-attack ./my-lab-replay-attack
+npm run create lab-replay-attack ./my-lab-replay-attack
 ```
 
 Then run tests:
@@ -149,6 +151,7 @@ Then run tests:
 ```bash
 cd ./my-lab-replay-attack
 npm install
+npm run compile
 npm run test
 ```
 

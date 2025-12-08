@@ -25,8 +25,8 @@ This example demonstrates how to implement **Swap ERC7984 <-> ERC20** using FHEV
 // SPDX-License-Identifier: BSD-3-Clause-Clear
 pragma solidity ^0.8.24;
 
-import { ERC7984 } from "openzeppelin-confidential-contracts/contracts/token/ERC7984/ERC7984.sol";
-import { IERC7984 } from "openzeppelin-confidential-contracts/contracts/token/ERC7984/IERC7984.sol";
+import { ERC7984 } from "@openzeppelin/confidential-contracts/token/ERC7984/ERC7984.sol";
+import { IERC7984 } from "@openzeppelin/confidential-contracts/interfaces/IERC7984.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ZamaEthereumConfig } from "@fhevm/solidity/config/ZamaConfig.sol";
@@ -61,8 +61,9 @@ contract SwapERC7984ERC20 is ZamaEthereumConfig {
         euint64 amount = FHE.fromExternal(encryptedAmount, proof);
         
         // Transfer confidential tokens from Seller to Contract
-        // Seller must have approved this contract
-        confidentialToken.transferFrom(msg.sender, address(this), amount);
+        // Seller must have set this contract as operator
+        FHE.allow(amount, address(confidentialToken));
+        confidentialToken.confidentialTransferFrom(msg.sender, address(this), amount);
         
         orders[nextOrderId] = Order({
             seller: msg.sender,
@@ -88,7 +89,7 @@ contract SwapERC7984ERC20 is ZamaEthereumConfig {
         require(success, "Public token transfer failed");
         
         // 2. Transfer Confidential Token: Contract -> Buyer
-        confidentialToken.transfer(msg.sender, order.confidentialAmountSelling);
+        confidentialToken.confidentialTransfer(msg.sender, order.confidentialAmountSelling);
         
         order.active = false;
         emit OrderFilled(orderId, msg.sender);
@@ -103,9 +104,9 @@ contract MockERC20 is ERC20 {
     function mint(address to, uint256 amount) public { _mint(to, amount); }
 }
 
-contract MockConfidentialToken is ERC7984 {
-    constructor() ERC7984("Mock Private", "PRIV") {}
-    function mint(address to, uint64 amount) public { _mint(to, amount); }
+contract MockConfidentialToken is ERC7984, ZamaEthereumConfig {
+    constructor() ERC7984("Mock Private", "PRIV", "") {}
+    function mint(address to, uint64 amount) public { _mint(to, FHE.asEuint64(amount)); }
 }
 
 
@@ -163,7 +164,7 @@ describe("SwapERC7984ERC20", function () {
 
     // Setup Alice (Seller): Has Confidential Token
     await confidentialToken.mint(signers.alice.address, sellAmount);
-    await confidentialToken.connect(signers.alice).approve(swapAddress, sellAmount);
+    await confidentialToken.connect(signers.alice).setOperator(swapAddress, "281474976710655");
 
     // Setup Bob (Buyer): Has Public Token
     await publicToken.mint(signers.bob.address, buyAmount);
@@ -172,13 +173,13 @@ describe("SwapERC7984ERC20", function () {
     // Alice creates order
     // Encrypt amount
     const input = await fhevm.createEncryptedInput(swapAddress, signers.alice.address)
-        .add64(sellAmount)
-        .encrypt();
+      .add64(sellAmount)
+      .encrypt();
 
     await swapContract.connect(signers.alice).createOrder(input.handles[0], input.inputProof, buyAmount);
 
     // Check: Alice's confidential balance should be 0 (transferred to contract)
-    const aliceBalanceHandle = await confidentialToken.balanceOf(signers.alice.address);
+    const aliceBalanceHandle = await confidentialToken.confidentialBalanceOf(signers.alice.address);
     const aliceBalance = await fhevm.userDecryptEuint(FhevmType.euint64, aliceBalanceHandle, confTokenAddress, signers.alice);
     expect(aliceBalance).to.equal(0);
 
@@ -186,7 +187,7 @@ describe("SwapERC7984ERC20", function () {
     await swapContract.connect(signers.bob).fillOrder(0);
 
     // Check: Bob's confidential balance should be 100
-    const bobBalanceHandle = await confidentialToken.balanceOf(signers.bob.address);
+    const bobBalanceHandle = await confidentialToken.confidentialBalanceOf(signers.bob.address);
     const bobBalance = await fhevm.userDecryptEuint(FhevmType.euint64, bobBalanceHandle, confTokenAddress, signers.bob);
     expect(bobBalance).to.equal(sellAmount);
 
@@ -203,7 +204,7 @@ describe("SwapERC7984ERC20", function () {
 To generate this example locally:
 
 ```bash
-npx run create erc7984-erc20-swap ./my-erc7984-erc20-swap
+npm run create erc7984-erc20-swap ./my-erc7984-erc20-swap
 ```
 
 Then run tests:
@@ -211,6 +212,7 @@ Then run tests:
 ```bash
 cd ./my-erc7984-erc20-swap
 npm install
+npm run compile
 npm run test
 ```
 

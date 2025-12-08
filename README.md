@@ -1,4 +1,4 @@
-# 🏗️ FHEVM Example Hub
+# 🏗️ FHEVM Example Hub & CLI
 
 > **The ultimate collection of FHEVM examples, patterns, and labs.**
 > 
@@ -10,81 +10,160 @@
 
 ## 🚀 Overview
 
-The **FHEVM Example Hub** is a comprehensive system designed to help developers learn, build, and deploy confidential smart contracts. It serves as:
+The **FHEVM Example Hub** serves two main purposes:
+1.  **CLI Tool (`fhevm-examples`)**: An interactive tool to generate ready-to-use FHEVM projects instantly.
+2.  **Educational Monorepo**: A centralized repository containing categorized examples, security labs, and patterns for developers to study and contribute to.
 
-1.  **A Generator**: Create specific, standalone example repositories with one command.
-2.  **A Learning Resource**: Explore categorized examples from Basic to Advanced.
-3.  **A Lab**: Hands-on security labs to understand FHE pitfalls (Input Proofs, Replay Attacks).
-4.  **A Reference**: Production-grade patterns for OpenZeppelin integration.
+## 📦 For CLI Users
 
-## 🌐 Web Catalog
+If you just want to generate a project and get coding, use the CLI.
 
-We provide a beautiful, searchable web catalog for all examples.
+### Installation
 
-**[View the Web Catalog](index.html)** (Open `index.html` in your browser)
-
-## 📦 Quick Start
-
-### 1. Installation
-
-Clone this repository and install dependencies:
+Install globally via npm:
 
 ```bash
-git clone https://github.com/your-username/fhevm-example-hub.git
+npm install -g fhevm-examples
+```
+
+### Usage
+
+Run the CLI from anywhere:
+
+```bash
+fhevm-examples
+```
+
+Select an example from the interactive menu, and the CLI will download the template, inject the selected example code, and configure the project for you.
+
+**Features:**
+- 📂 **Categorized Selection**: browse Basic, Applications, Concepts, Labs, etc.
+- ⚡ **Instant Setup**: Dependencies, config, and tasks are auto-wired.
+- 🛡️ **Production Template**: Uses the official `fhevm-hardhat-template`.
+
+---
+
+## 🛠️ For Contributors & Source Users
+
+If you want to run the hub locally, modify the CLI, or study the examples directly from this repo.
+
+### 1. clone the repository
+
+```bash
+git clone https://github.com/jobjab-dev/fhevm-example-hub.git
 cd fhevm-example-hub
+```
+
+### 2. Install Dependencies
+
+```bash
 npm install
 ```
 
-### 2. Generate an Example
+### 3. Build the CLI
 
-Want to learn how to build a **Blind Auction**? Generate a dedicated repo for it:
-
-```bash
-# Syntax: npm run create <example-name> <output-directory>
-npm run create blind-auction ./my-blind-auction
-```
-
-Go to your new repo and run it:
+You must build the project to compile the TypeScript code.
 
 ```bash
-cd my-blind-auction
-npm install
-npm test
+npm run build
 ```
 
-### 3. Explore Categories
+### 4. Run Locally
 
-We have examples for every stage of your journey:
+You can run the CLI directly from the source code (built version):
 
-| Category | Examples | Description |
-|----------|----------|-------------|
-| **🐣 Basic** | `fhe-counter`, `fhe-add` | Learn encryption, decryption, and basic math. |
-| **🔐 Encryption** | `encrypt-single-value` | Understand how to encrypt data on client-side. |
-| **🔓 Decryption** | `user-decrypt`, `public-decrypt` | Learn re-encryption and public decryption. |
-| **🛡️ Access Control** | `access-control` | Master `FHE.allow` and `FHE.allowTransient`. |
-| **🧠 Concepts** | `input-proofs`, `handles` | Deep dive into how FHEVM works under the hood. |
-| **🧪 Labs** | `lab-wrong-signer`, `lab-replay` | Interactive security labs to break and fix code. |
-| **🏦 OpenZeppelin** | `erc20-wrapper`, `vesting-wallet` | Integrate with standard confidential tokens. |
-| **🚀 Applications** | `blind-auction` | Real-world confidential dApps. |
+```bash
+npm start
+``` 
 
-## 🛠️ Developer Tools
+### 5. Web Catalog
 
-This hub comes with a suite of tools to maintain high quality:
+The project also includes a web-based catalog to browse examples visually.
 
-- **Docs Generator**: `npm run docs` (Generates GitBook-ready markdown from code)
-- **Validator**: `npm run validate:all` (Generates and tests ALL examples to ensure they work)
-- **Dependency Updater**: `npm run update:deps` (Keeps all examples up to date with latest FHEVM)
+```bash
+npm run dev:web
+```
 
-## 📚 Documentation
+This will start a Vite development server in the `app/` directory.
 
-Detailed documentation for each example is auto-generated in the `docs/` folder.
+### 6. Available Scripts
 
-- [Read the Guide](docs/SUMMARY.md)
-- [Integration with GitBook](docs/GITBOOK_INTEGRATION.md)
+We provide several scripts to help manage the hub:
+
+- **`npm run create <example-name> [dir]`**: Run the generator script directly without the UI menu.
+  - Example: `npm run create fhe-counter ./my-test`
+- **`npm run create:category`**: Helper to scaffold a new category folder structure.
+- **`npm run validate`**: Validate that an example exists and has the correct structure.
+- **`npm run validate:all`**: **(Important)** Generates, compiles, and tests **ALL** examples in the catalog. Run this before submitting a PR.
+- **`npm run docs`**: Auto-generate documentation files from the source code.
+- **`npm run update:deps`**: Update dependencies across all examples.
+
+## 🌟 Available Examples
+
+For detailed documentation, patterns, and concepts, please visit the [**Documentation Summary**](docs/SUMMARY.md).
+
+### 🐣 Basic
+| Example | Description |
+|---------|-------------|
+| `fhe-counter` | A simple FHE counter demonstrating basic encrypted operations. |
+
+### 🔐 Encryption
+| Example | Description |
+|---------|-------------|
+| `encrypt-single-value` | Demonstrates FHE encryption mechanism and common pitfalls. |
+| `encrypt-multiple-values` | Shows how to create and handle multiple encrypted values. |
+
+### 🔓 Decryption
+| Example | Description |
+|---------|-------------|
+| `user-decrypt-single` | Demonstrates user decryption (re-encryption) for a single value. |
+| `user-decrypt-multiple` | Shows how to decrypt multiple values for a user in one go. |
+| `public-decrypt-single` | Demonstrates public decryption mechanism (e.g. for game results). |
+| `public-decrypt-multiple` | Shows public decryption of multiple values. |
+
+### 🧮 Operations
+| Example | Description |
+|---------|-------------|
+| `fhe-operations` | Demonstrates basic FHE arithmetic (Add, Sub, Mul). |
+| `fhe-if-then-else` | Shows conditional logic (select) on encrypted values. |
+
+### 🧠 Concepts
+| Example | Description |
+|---------|-------------|
+| `access-control` | extensive guide on `FHE.allow` and `FHE.allowTransient`. |
+| `input-proofs` | Shows correct usage of input proofs to prevent ciphertext mallability. |
+| `anti-patterns` | Highlights common security mistakes and how to fix them. |
+| `handles` | Deep dive into FHE handles lifecycle and manipulation. |
+
+### 🧪 Security Labs
+| Example | Description |
+|---------|-------------|
+| `lab-input-proof` | Lab: Learn why input proofs must be bound to specific contracts. |
+| `lab-wrong-signer` | Lab: Demonstrates input binding to sender address to prevent spoofing. |
+| `lab-replay-attack` | Lab: Handling replay attacks and state protection. |
+
+### 🏦 OpenZeppelin Confidential
+| Example | Description |
+|---------|-------------|
+| `erc7984-example` | Standard implementation of the ERC7984 Confidential Token. |
+| `erc20-wrapper` | Wraps a public ERC20 token into a private ERC7984 token. |
+| `erc7984-erc20-swap` | Atomic swap between confidential ERC7984 and public ERC20. |
+| `erc7984-erc7984-swap` | Atomic swap between two confidential ERC7984 tokens. |
+| `vesting-wallet` | Confidential vesting wallet for ERC7984 tokens. |
+
+### 🚀 Applications
+| Example | Description |
+|---------|-------------|
+| `blind-auction` | Sealed-bid auction where bids remain confidential until the end. |
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see [DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md) for how to add new examples to the hub.
+We welcome contributions!
+1.  Fork the repo.
+2.  Add your example in `examples/`.
+3.  Register it in `example-catalog.json`.
+4.  Run `npm run validate:all` to ensure it builds and tests correctly.
+5.  Submit a Pull Request.
 
 ---
 

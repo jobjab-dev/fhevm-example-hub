@@ -8,8 +8,13 @@
  * 2. SUMMARY.md for GitBook
  */
 
+import { fileURLToPath } from 'url';
 import * as fs from 'fs';
 import * as path from 'path';
+
+// Fix for __dirname in ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Load catalog
 const CATALOG_PATH = path.join(__dirname, '..', 'example-catalog.json');
@@ -91,7 +96,7 @@ ${testContent}
 To generate this example locally:
 
 \`\`\`bash
-npx run create ${key} ./my-${key}
+npm run create ${key} ./my-${key}
 \`\`\`
 
 Then run tests:
@@ -99,6 +104,7 @@ Then run tests:
 \`\`\`bash
 cd ./my-${key}
 npm install
+npm run compile
 npm run test
 \`\`\`
 
@@ -127,7 +133,7 @@ function generateSummary() {
     Object.keys(categories).sort().forEach(category => {
         const categoryTitle = category.charAt(0).toUpperCase() + category.slice(1);
         summaryContent += `* [${categoryTitle}](chapters/${category}.md)\n`;
-        
+
         categories[category].forEach(key => {
             const config = EXAMPLES_MAP[key];
             summaryContent += `  * [${config.title}](examples/${config.category}/${key}.md)\n`;

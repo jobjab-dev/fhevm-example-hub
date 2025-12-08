@@ -33,7 +33,7 @@ async function validateAll() {
         try {
             // 1. Generate
             log(`  Generating...`);
-            createExample(example, exampleDir);
+            await createExample(example, exampleDir);
 
             // 2. Install dependencies
             // To speed this up in a dev environment, we could symlink node_modules, but for product validation we should install.

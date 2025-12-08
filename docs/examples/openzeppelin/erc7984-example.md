@@ -25,22 +25,23 @@ This example demonstrates how to implement **ERC7984 Token** using FHEVM.
 // SPDX-License-Identifier: BSD-3-Clause-Clear
 pragma solidity ^0.8.24;
 
-import { ERC7984 } from "openzeppelin-confidential-contracts/contracts/token/ERC7984/ERC7984.sol";
+import { ERC7984 } from "@openzeppelin/confidential-contracts/token/ERC7984/ERC7984.sol";
 import { ZamaEthereumConfig } from "@fhevm/solidity/config/ZamaConfig.sol";
 import { FHE, euint64, externalEuint64 } from "@fhevm/solidity/lib/FHE.sol";
 
 contract ERC7984Example is ERC7984, ZamaEthereumConfig {
-    constructor() ERC7984("ConfidentialToken", "CTK") {}
+    constructor() ERC7984("ConfidentialToken", "CTK", "https://example.com/meta") {}
 
     function mint(address to, uint64 amount) public {
-        _mint(to, amount);
+        _mint(to, FHE.asEuint64(amount));
     }
 
     // Helper to allow transfer from external encrypted input
     // ERC7984 might have this, but being explicit is safe for this example.
     function transferExternal(address to, externalEuint64 input, bytes calldata inputProof) external returns (bool) {
         euint64 amount = FHE.fromExternal(input, inputProof);
-        return transfer(to, amount);
+        _transfer(msg.sender, to, amount);
+        return true;
     }
 }
 
@@ -87,42 +88,42 @@ describe("ERC7984Example", function () {
     await contract.mint(signers.alice.address, 100);
 
     // Check balance (encrypted)
-    const balanceHandle = await contract.balanceOf(signers.alice.address);
+    const balanceHandle = await contract.confidentialBalanceOf(signers.alice.address);
     // User decrypt
     const balance = await fhevm.userDecryptEuint(
-        FhevmType.euint64,
-        balanceHandle,
-        contractAddress,
-        signers.alice
+      FhevmType.euint64,
+      balanceHandle,
+      contractAddress,
+      signers.alice
     );
     expect(balance).to.equal(100);
 
     // Transfer 10 from Alice to Bob
     // Alice needs to encrypt the amount
     const inputAmount = await fhevm.createEncryptedInput(contractAddress, signers.alice.address)
-        .add64(10)
-        .encrypt();
-    
+      .add64(10)
+      .encrypt();
+
     // Using our helper transferExternal
     await contract.connect(signers.alice).transferExternal(signers.bob.address, inputAmount.handles[0], inputAmount.inputProof);
 
     // Check Bob's balance
-    const bobBalanceHandle = await contract.balanceOf(signers.bob.address);
+    const bobBalanceHandle = await contract.confidentialBalanceOf(signers.bob.address);
     const bobBalance = await fhevm.userDecryptEuint(
-        FhevmType.euint64,
-        bobBalanceHandle,
-        contractAddress,
-        signers.bob
+      FhevmType.euint64,
+      bobBalanceHandle,
+      contractAddress,
+      signers.bob
     );
     expect(bobBalance).to.equal(10);
-    
+
     // Check Alice's balance
-    const aliceNewBalanceHandle = await contract.balanceOf(signers.alice.address);
+    const aliceNewBalanceHandle = await contract.confidentialBalanceOf(signers.alice.address);
     const aliceNewBalance = await fhevm.userDecryptEuint(
-        FhevmType.euint64,
-        aliceNewBalanceHandle,
-        contractAddress,
-        signers.alice
+      FhevmType.euint64,
+      aliceNewBalanceHandle,
+      contractAddress,
+      signers.alice
     );
     expect(aliceNewBalance).to.equal(90);
   });
@@ -136,7 +137,7 @@ describe("ERC7984Example", function () {
 To generate this example locally:
 
 ```bash
-npx run create erc7984-example ./my-erc7984-example
+npm run create erc7984-example ./my-erc7984-example
 ```
 
 Then run tests:
@@ -144,6 +145,7 @@ Then run tests:
 ```bash
 cd ./my-erc7984-example
 npm install
+npm run compile
 npm run test
 ```
 

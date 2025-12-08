@@ -25,8 +25,8 @@ This example demonstrates how to implement **Vesting Wallet** using FHEVM.
 // SPDX-License-Identifier: BSD-3-Clause-Clear
 pragma solidity ^0.8.24;
 
-import { ERC7984 } from "openzeppelin-confidential-contracts/contracts/token/ERC7984/ERC7984.sol";
-import { IERC7984 } from "openzeppelin-confidential-contracts/contracts/token/ERC7984/IERC7984.sol";
+import { ERC7984 } from "@openzeppelin/confidential-contracts/token/ERC7984/ERC7984.sol";
+import { IERC7984 } from "@openzeppelin/confidential-contracts/interfaces/IERC7984.sol";
 import { ZamaEthereumConfig } from "@fhevm/solidity/config/ZamaConfig.sol";
 import { FHE, euint64, externalEuint64 } from "@fhevm/solidity/lib/FHE.sol";
 
@@ -64,7 +64,8 @@ contract VestingWalletExample is ZamaEthereumConfig {
         require(!_initialized, "Already initialized");
         euint64 amount = FHE.fromExternal(encryptedAmount, proof);
         
-        token.transferFrom(msg.sender, address(this), amount);
+        FHE.allow(amount, address(token));
+        token.confidentialTransferFrom(msg.sender, address(this), amount);
         
         _totalAllocation = amount;
         FHE.allowThis(_totalAllocation);
@@ -85,11 +86,12 @@ contract VestingWalletExample is ZamaEthereumConfig {
         FHE.allowThis(_totalReleased); // Allow contract to use updated value
 
         // Transfer releasable amount to beneficiary
-        token.transfer(beneficiary, releasable);
+        FHE.allow(releasable, address(token));
+        token.confidentialTransfer(beneficiary, releasable);
     }
 
     /// @notice Calculates the amount that has already vested
-    function _vestedAmount(uint64 timestamp) internal view returns (euint64) {
+    function _vestedAmount(uint64 timestamp) internal returns (euint64) {
         if (timestamp < start) {
             return FHE.asEuint64(0);
         } else if (timestamp >= start + duration) {
@@ -98,10 +100,9 @@ contract VestingWalletExample is ZamaEthereumConfig {
             // Linear vesting: allocation * (time - start) / duration
             uint64 timePassed = timestamp - start;
             // euint64 * uint64 (scalar) -> euint64
-            euint64 vested = FHE.mul(_totalAllocation, timePassed);
-            // euint64 / uint64 (scalar) -> euint64 (Assuming scalar division is supported or we iterate)
+            euint64 vested = FHE.mul(_totalAllocation, FHE.asEuint64(timePassed));
+            // euint64 / uint64 (scalar) -> euint64
             // Zama FHEVM supports scalar operations.
-            // But wait, integer division? Yes.
             return FHE.div(vested, duration);
         }
     }
@@ -121,9 +122,9 @@ contract VestingWalletExample is ZamaEthereumConfig {
 }
 
 // Helpers
-contract MockConfidentialToken is ERC7984 {
-    constructor() ERC7984("Mock Private", "PRIV") {}
-    function mint(address to, uint64 amount) public { _mint(to, amount); }
+contract MockConfidentialToken is ERC7984, ZamaEthereumConfig {
+    constructor() ERC7984("Mock Private", "PRIV", "") {}
+    function mint(address to, uint64 amount) public { _mint(to, FHE.asEuint64(amount)); }
 }
 
 
@@ -168,20 +169,20 @@ describe("VestingWalletExample", function () {
     // Deploy Vesting Wallet
     const vestingFactory = await ethers.getContractFactory("VestingWalletExample");
     vesting = (await vestingFactory.deploy(
-        tokenAddress, 
-        signers.beneficiary.address, 
-        startTimestamp, 
-        DURATION
+      tokenAddress,
+      signers.beneficiary.address,
+      startTimestamp,
+      DURATION
     )) as VestingWalletExample;
     vestingAddress = await vesting.getAddress();
 
     // Mint and Initialize
     await token.mint(signers.deployer.address, ALLOCATION);
-    await token.connect(signers.deployer).approve(vestingAddress, ALLOCATION);
+    await token.connect(signers.deployer).setOperator(vestingAddress, "281474976710655");
 
     const input = await fhevm.createEncryptedInput(vestingAddress, signers.deployer.address)
-        .add64(ALLOCATION)
-        .encrypt();
+      .add64(ALLOCATION)
+      .encrypt();
 
     await vesting.initialize(input.handles[0], input.inputProof);
   });
@@ -199,35 +200,35 @@ describe("VestingWalletExample", function () {
 
     // 2. Advance to 50% duration
     await time.increaseTo(startTimestamp + DURATION / 2);
-    
+
     // Release
     await vesting.release();
 
     // Check Beneficiary Balance (should be ~500)
-    const balanceHandle = await token.balanceOf(signers.beneficiary.address);
+    const balanceHandle = await token.confidentialBalanceOf(signers.beneficiary.address);
     const balance = await fhevm.userDecryptEuint(
-        FhevmType.euint64,
-        balanceHandle,
-        tokenAddress,
-        signers.beneficiary
+      FhevmType.euint64,
+      balanceHandle,
+      tokenAddress,
+      signers.beneficiary
     );
-    
+
     // Allow small margin of error for time precision
     expect(balance).to.be.closeTo(500, 5);
 
     // 3. Advance to end
     await time.increaseTo(startTimestamp + DURATION + 1);
-    
+
     // Release remaining
     await vesting.release();
 
     // Check Beneficiary Balance (should be 1000)
-    const finalBalanceHandle = await token.balanceOf(signers.beneficiary.address);
+    const finalBalanceHandle = await token.confidentialBalanceOf(signers.beneficiary.address);
     const finalBalance = await fhevm.userDecryptEuint(
-        FhevmType.euint64,
-        finalBalanceHandle,
-        tokenAddress,
-        signers.beneficiary
+      FhevmType.euint64,
+      finalBalanceHandle,
+      tokenAddress,
+      signers.beneficiary
     );
     expect(finalBalance).to.equal(ALLOCATION);
   });
@@ -241,7 +242,7 @@ describe("VestingWalletExample", function () {
 To generate this example locally:
 
 ```bash
-npx run create vesting-wallet ./my-vesting-wallet
+npm run create vesting-wallet ./my-vesting-wallet
 ```
 
 Then run tests:
@@ -249,6 +250,7 @@ Then run tests:
 ```bash
 cd ./my-vesting-wallet
 npm install
+npm run compile
 npm run test
 ```
 

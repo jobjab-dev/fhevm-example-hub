@@ -185,6 +185,50 @@ describe("EncryptMultipleValues", function () {
     expect(clearUint32).to.equal(123456);
     expect(clearAddress).to.equal(signers.owner.address);
   });
+
+  it("should fail if caller is not the signer of the input proof", async function () {
+    const fhevm: HardhatFhevmRuntimeEnvironment = hre.fhevm;
+    const input = fhevm.createEncryptedInput(contractAddress, signers.alice.address);
+    input.addBool(true);
+    input.add32(123456);
+    input.addAddress(signers.owner.address);
+    const enc = await input.encrypt();
+
+    // Bob tries to submit Alice's input
+    await expect(
+      contract.connect(signers.owner).initialize(enc.handles[0], enc.handles[1], enc.handles[2], enc.inputProof)
+    ).to.be.reverted; // exact error might depend on implementation, usually "Invalid proof" or similar
+  });
+
+  it("should fail if unauthorized user tries to decrypt", async function () {
+    const fhevm: HardhatFhevmRuntimeEnvironment = hre.fhevm;
+
+    // Alice initializes the values
+    const input = fhevm.createEncryptedInput(contractAddress, signers.alice.address);
+    input.addBool(true);
+    input.add32(123456);
+    input.addAddress(signers.owner.address);
+    const enc = await input.encrypt();
+
+    await contract.connect(signers.alice).initialize(enc.handles[0], enc.handles[1], enc.handles[2], enc.inputProof);
+
+    const encryptedBool = await contract.encryptedBool();
+
+    // Bob (signers.owner) tries to decrypt Alice's value
+    // Note: In the contract, ONLY msg.sender (Alice) was granted permission.
+    // In Mock mode, decrypting without permission usually fails or returns garbage/error.
+    let errorOccurred = false;
+    try {
+      await fhevm.userDecryptEbool(
+        encryptedBool,
+        contractAddress,
+        signers.owner
+      );
+    } catch (e) {
+      errorOccurred = true;
+    }
+    expect(errorOccurred).to.be.true;
+  });
 });
 ```
 
@@ -193,7 +237,7 @@ describe("EncryptMultipleValues", function () {
 To generate this example locally:
 
 ```bash
-npx run create encrypt-multiple-values ./my-encrypt-multiple-values
+npm run create encrypt-multiple-values ./my-encrypt-multiple-values
 ```
 
 Then run tests:
@@ -201,6 +245,7 @@ Then run tests:
 ```bash
 cd ./my-encrypt-multiple-values
 npm install
+npm run compile
 npm run test
 ```
 

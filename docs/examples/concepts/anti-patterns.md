@@ -75,7 +75,7 @@ contract AntiPatternExample is ZamaEthereumConfig {
     /// HOWEVER: In Zama's FHEVM, you CAN return handles from view functions, 
     /// but you CANNOT do `FHE.req` or decryption that changes state inside a view.
     /// Also, a common mistake is trying to "view" the decrypted value directly.
-    function badViewAttempt() external view returns (uint32) {
+    function badViewAttempt() external pure returns (uint32) {
         // This is impossible. You cannot decrypt inside a view function to return a cleartext.
         // FHE.decrypt(_val); // Compile error or Runtime error depending on version
         return 0; 
@@ -169,7 +169,7 @@ describe("AntiPatternExample", function () {
 To generate this example locally:
 
 ```bash
-npx run create anti-patterns ./my-anti-patterns
+npm run create anti-patterns ./my-anti-patterns
 ```
 
 Then run tests:
@@ -177,6 +177,7 @@ Then run tests:
 ```bash
 cd ./my-anti-patterns
 npm install
+npm run compile
 npm run test
 ```
 

@@ -35,6 +35,7 @@ contract LabInputProof is ZamaEthereumConfig {
     euint32 private _secureValue;
 
     constructor() {
+        _secureValue = FHE.asEuint32(0);
         FHE.allowThis(_secureValue);
     }
 
@@ -126,7 +127,7 @@ describe("Lab 01: Input Proof Binding", function () {
 To generate this example locally:
 
 ```bash
-npx run create lab-input-proof ./my-lab-input-proof
+npm run create lab-input-proof ./my-lab-input-proof
 ```
 
 Then run tests:
@@ -134,6 +135,7 @@ Then run tests:
 ```bash
 cd ./my-lab-input-proof
 npm install
+npm run compile
 npm run test
 ```
 

@@ -111,7 +111,7 @@ describe("LabWrongSigner", function () {
 To generate this example locally:
 
 ```bash
-npx run create lab-wrong-signer ./my-lab-wrong-signer
+npm run create lab-wrong-signer ./my-lab-wrong-signer
 ```
 
 Then run tests:
@@ -119,6 +119,7 @@ Then run tests:
 ```bash
 cd ./my-lab-wrong-signer
 npm install
+npm run compile
 npm run test
 ```
 

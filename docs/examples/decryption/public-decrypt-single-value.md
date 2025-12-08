@@ -404,7 +404,7 @@ describe("HeadsOrTails", function () {
 To generate this example locally:
 
 ```bash
-npx run create public-decrypt-single-value ./my-public-decrypt-single-value
+npm run create public-decrypt-single-value ./my-public-decrypt-single-value
 ```
 
 Then run tests:
@@ -412,6 +412,7 @@ Then run tests:
 ```bash
 cd ./my-public-decrypt-single-value
 npm install
+npm run compile
 npm run test
 ```
 

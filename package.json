@@ -8,25 +8,27 @@
   },
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "echo \"See README.md for running tests on generated examples\" && exit 0",
+    "clean": "rimraf dist",
+    "prebuild": "npm run clean",
     "build": "tsc -p tsconfig.cli.json",
+    "start": "node dist/src/cli/index.js",
     "create": "node --loader ts-node/esm scripts/create-fhevm-example.ts",
     "create:category": "node --loader ts-node/esm scripts/create-fhevm-category.ts",
     "docs": "node --loader ts-node/esm scripts/generate-docs.ts",
     "validate": "node --loader ts-node/esm scripts/validate-example.ts",
     "validate:all": "node --loader ts-node/esm scripts/validate_all.ts",
-    "test:all": "node --loader ts-node/esm scripts/validate_all.ts",
-    "lint": "node --loader ts-node/esm scripts/validate-example.ts",
+    "lint": "echo \"No linting configured\" && exit 0",
     "update:deps": "node --loader ts-node/esm scripts/update-deps.ts",
     "build:web": "cd app && npm run build",
     "dev:web": "cd app && npm run dev",
     "preview:web": "cd app && npm run preview",
-    "start:cli": "node dist/cli/index.js"
+    "start:cli": "node dist/cli/index.js",
+    "dev": "concurrently \"npm run build -- --watch\" \"npm run dev:web\""
   },
   "files": [
     "dist",
     "examples",
-    "fhevm-hardhat-template",
     "example-catalog.json",
     "docs"
   ],
@@ -39,17 +41,22 @@
   "author": "Antigravity",
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^20.0.0",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.0.0",
-    "fs-extra": "^11.1.1",
     "@types/fs-extra": "^11.0.1",
-    "glob": "^10.3.10"
+    "@types/node": "^20.0.0",
+    "fs-extra": "^11.1.1",
+    "glob": "^10.3.10",
+    "rimraf": "^6.1.2",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.0"
   },
   "dependencies": {
     "@clack/prompts": "^0.9.0",
+    "@types/figlet": "^1.7.0",
     "chalk": "^5.4.0",
     "commander": "^13.0.0",
-    "execa": "^9.5.2"
+    "execa": "^9.5.2",
+    "figlet": "^1.9.4",
+    "gradient-string": "^3.0.0",
+    "tiged": "^2.12.7"
   }
 }

@@ -164,7 +164,7 @@ describe("UserDecryptSingleValue", function () {
 To generate this example locally:
 
 ```bash
-npx run create user-decrypt-single-value ./my-user-decrypt-single-value
+npm run create user-decrypt-single-value ./my-user-decrypt-single-value
 ```
 
 Then run tests:
@@ -172,6 +172,7 @@ Then run tests:
 ```bash
 cd ./my-user-decrypt-single-value
 npm install
+npm run compile
 npm run test
 ```
 

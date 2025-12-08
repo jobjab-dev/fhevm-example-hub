@@ -8,6 +8,8 @@
  * Example: ts-node scripts/create-fhevm-example.ts fhe-counter ./my-fhe-counter
  */
 
+// @ts-ignore
+import tiged from 'tiged';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -65,35 +67,6 @@ function info(message: string): void {
   log(`ℹ️  ${message}`, Color.Blue);
 }
 
-function copyDirectoryRecursive(source: string, destination: string): void {
-  if (!fs.existsSync(destination)) {
-    fs.mkdirSync(destination, { recursive: true });
-  }
-
-  // Create subdirectories if they don't exist
-  if (!fs.existsSync(destination)) {
-    fs.mkdirSync(destination, { recursive: true });
-  }
-
-  const items = fs.readdirSync(source);
-
-  items.forEach(item => {
-    const sourcePath = path.join(source, item);
-    const destPath = path.join(destination, item);
-    const stat = fs.statSync(sourcePath);
-
-    if (stat.isDirectory()) {
-      // Skip node_modules, artifacts, cache, etc.
-      if (['node_modules', 'artifacts', 'cache', 'coverage', 'types', 'dist'].includes(item)) {
-        return;
-      }
-      copyDirectoryRecursive(sourcePath, destPath);
-    } else {
-      fs.copyFileSync(sourcePath, destPath);
-    }
-  });
-}
-
 function getContractName(contractPath: string): string | null {
   const content = fs.readFileSync(contractPath, 'utf-8');
   // Match contract declaration, ignoring comments and ensuring it's followed by 'is' or '{'
@@ -104,6 +77,10 @@ function getContractName(contractPath: string): string | null {
 function updateHardhatConfig(outputDir: string, exampleName: string, contractName: string): void {
   const configPath = path.join(outputDir, 'hardhat.config.ts');
   let configContent = fs.readFileSync(configPath, 'utf-8');
+
+  // Add environment variable fallbacks
+  // This ensures that if the template expects certain vars, we don't break if they aren't there yet,
+  // or we document them well. The template already handles this via `dotenv`.
 
   if (exampleName === 'fhe-counter') {
     // For fhe-counter, we keep the task import but update the filename if needed
@@ -217,6 +194,7 @@ function generateReadme(exampleName: string, description: string, contractName: 
 ${description}
 
 ## Quick Start
+Check [FHEVM Documentation](https://docs.zama.ai/fhevm) for more details.
 
 ### Prerequisites
 
@@ -335,9 +313,25 @@ This project is licensed under the BSD-3-Clause-Clear License.
 `;
 }
 
-export function createExample(exampleName: string, outputDir: string): void {
-  const rootDir = path.resolve(__dirname, '..');
-  const templateDir = path.join(rootDir, 'fhevm-hardhat-template');
+async function downloadTemplate(outputDir: string): Promise<void> {
+  const emitter = tiged('jobjab-dev/fhevm-hardhat-template', {
+    disableCache: true,
+    force: true,
+  });
+
+  return new Promise((resolve, reject) => {
+    emitter.clone(outputDir)
+      .then(() => {
+        resolve();
+      })
+      .catch((err: any) => {
+        reject(err);
+      });
+  });
+}
+
+export async function createExample(exampleName: string, outputDir: string): Promise<void> {
+  const rootDir = getProjectRoot();
 
   // Check if example exists
   if (!EXAMPLES_MAP[exampleName]) {
@@ -359,13 +353,24 @@ export function createExample(exampleName: string, outputDir: string): void {
   info(`Creating FHEVM example: ${exampleName}`);
   info(`Output directory: ${outputDir}`);
 
-  // Step 1: Copy template
-  log('\n📋 Step 1: Copying template...', Color.Cyan);
+  // Step 1: Download template
+  log('\n📋 Step 1: Downloading template from GitHub...', Color.Cyan);
+
   if (fs.existsSync(outputDir)) {
-    error(`Output directory already exists: ${outputDir}`);
+    // Check if directory is empty
+    if (fs.readdirSync(outputDir).length > 0) {
+      error(`Output directory already exists and is not empty: ${outputDir}`);
+    }
+  } else {
+    fs.mkdirSync(outputDir, { recursive: true });
   }
-  copyDirectoryRecursive(templateDir, outputDir);
-  success('Template copied');
+
+  try {
+    await downloadTemplate(outputDir);
+    success('Template downloaded successfully');
+  } catch (e: any) {
+    error(`Failed to download template: ${e.message}`);
+  }
 
   // Step 2: Copy contract
   log('\n📄 Step 2: Copying contract...', Color.Cyan);
@@ -520,7 +525,7 @@ export function createExample(exampleName: string, outputDir: string): void {
 }
 
 // Main execution
-function main(): void {
+async function main(): Promise<void> {
   const args = process.argv.slice(2);
 
   if (args.length === 0 || args[0] === '--help' || args[0] === '-h') {
@@ -537,11 +542,14 @@ function main(): void {
   const exampleName = args[0];
   const outputDir = args[1] || path.join(process.cwd(), 'output', `fhevm-example-${exampleName}`);
 
-  createExample(exampleName, outputDir);
+  await createExample(exampleName, outputDir);
 }
 
 if (process.argv[1] === __filename) {
-  main();
+  main().catch(err => {
+    console.error(err);
+    process.exit(1);
+  });
 }
 
 export { EXAMPLES_MAP };

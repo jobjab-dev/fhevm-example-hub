@@ -175,7 +175,7 @@ describe("UserDecryptMultipleValues", function () {
 To generate this example locally:
 
 ```bash
-npx run create user-decrypt-multiple-values ./my-user-decrypt-multiple-values
+npm run create user-decrypt-multiple-values ./my-user-decrypt-multiple-values
 ```
 
 Then run tests:
@@ -183,6 +183,7 @@ Then run tests:
 ```bash
 cd ./my-user-decrypt-multiple-values
 npm install
+npm run compile
 npm run test
 ```
 

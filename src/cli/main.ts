@@ -4,6 +4,8 @@ import { createExample, EXAMPLES_MAP } from '../../scripts/create-fhevm-example.
 import path from 'path';
 import fs from 'fs';
 import chalk from 'chalk';
+import figlet from 'figlet';
+import gradient from 'gradient-string';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -21,8 +23,65 @@ function getPackageVersion() {
 }
 
 export async function main() {
-    console.log();
-    intro(chalk.bgCyan(chalk.black(` FHEVM EXAMPLES CLI v${getPackageVersion()} `)));
+    console.clear();
+
+    const version = getPackageVersion();
+
+    // FHEVM Theme Gradient - Warm/Yellow tones like the reference image
+    const fhevmGradient = gradient(['#ffaa00', '#e0c068', '#ffaa00']);
+    const subtitleGradient = gradient(['#888888', '#aaaaaa', '#888888']);
+
+    // Display banner box
+    const width = 60;
+    const border = '═'.repeat(width);
+
+    console.log(chalk.gray(`\n  ╔${border}╗`));
+    console.log(chalk.gray(`  ║`) + `  Welcome to the ${fhevmGradient('FHEVM CLI')} research preview!`.padEnd(width + 10) + chalk.gray(`   ║`)); // Padding adjustment for ANSI codes
+    console.log(chalk.gray(`  ╚${border}╝\n`));
+
+    // Render Large ASCII Art
+    await new Promise<void>((resolve) => {
+        figlet.text('FHEVM HUB', {
+            font: 'ANSI Shadow', // Use a block-like shadow font
+            horizontalLayout: 'default',
+            verticalLayout: 'default',
+            width: 80,
+            whitespaceBreak: true
+        }, function (err: any, data: any) {
+            if (err) {
+                console.log('Something went wrong...');
+                console.dir(err);
+                resolve();
+                return;
+            }
+            // Print with gradient
+            console.log(fhevmGradient.multiline(data));
+            resolve();
+        });
+    });
+
+    console.log('\n');
+
+    // Subtitle animation
+    const subtitle = "  The ultimate collection of FHEVM examples";
+    process.stdout.write(chalk.gray('  '));
+    for (let i = 0; i < subtitle.length; i++) {
+        process.stdout.write(chalk.gray(subtitle[i]));
+        await new Promise(r => setTimeout(r, 10)); // Typing effect
+    }
+    console.log('\n');
+
+    // Replicate the "Login successful" style prompt
+    console.log(`  ${chalk.green('✔')} CLI loaded. Press ${chalk.bold.white('Enter')} to continue`);
+
+    // Simple wait for enter to match the "feel"
+    await text({
+        message: '',
+        placeholder: '',
+        defaultValue: ''
+    });
+
+    // intro(chalk.inverse(' 🔓 Ready to Decrypt & Build ')); // We can skip intro or keep it minimal
 
     const options = [
         { value: 'create', label: 'Create New Example Project', hint: 'Generate a new FHEVM project from templates' },
@@ -51,19 +110,65 @@ export async function main() {
 }
 
 async function handleCreate() {
-    const examples = Object.entries(EXAMPLES_MAP).map(([key, value]: [string, any]) => ({
-        value: key,
-        label: value.title || key,
-        hint: value.description
-    }));
+    // Group examples by category
+    const categories: Record<string, any[]> = {};
+    // ... (grouping logic remains)
+
+    Object.entries(EXAMPLES_MAP).forEach(([key, value]: [string, any]) => {
+        const cat = value.category || 'Uncategorized';
+        if (!categories[cat]) {
+            categories[cat] = [];
+        }
+        categories[cat].push({ key, ...value });
+    });
+
+    const categoryDescriptions: Record<string, string> = {
+        'basic': 'Fundamental concepts: Encryption, Decryption, Math',
+        'applications': 'Real-world decentralized applications',
+        'concepts': 'Deep dive into specific FHEVM mechanics',
+        'labs': 'Security labs and vulnerability demonstrations',
+        'openzeppelin-confidential-contracts': 'Standard ERC tokens with confidentiality',
+    };
+
+    // Step 1: Select Category
+    const categoryOptions = [
+        ...Object.keys(categories).map(cat => ({
+            value: cat,
+            label: cat.charAt(0).toUpperCase() + cat.slice(1).replace(/-/g, ' '),
+            hint: categoryDescriptions[cat] || `Examples related to ${cat}`
+        })),
+        { value: 'back', label: '← Back', hint: 'Return to main menu' } // Back option
+    ];
+
+    const selectedCategory = await select({
+        message: 'Select a category:',
+        options: categoryOptions,
+    });
+
+    if (isCancel(selectedCategory) || selectedCategory === 'back') {
+        if (selectedCategory === 'back') return main();
+        cancel('Operation cancelled.');
+        return main();
+    }
+
+    // Step 2: Select Example from Category
+    const exampleOptions = [
+        ...categories[selectedCategory as string].map((ex: any) => ({
+            value: ex.key,
+            label: ex.title || ex.key,
+            hint: ex.description
+        })),
+        { value: 'back', label: '← Back', hint: 'Return to category selection' } // Back option
+    ];
 
     const exampleName = await select({
-        message: 'Select an example template:',
-        options: examples,
+        message: `Select an example from ${selectedCategory}:`,
+        options: exampleOptions,
         maxItems: 10
     });
 
-    if (isCancel(exampleName)) {
+    if (isCancel(exampleName) || exampleName === 'back') {
+        if (exampleName === 'back') return handleCreate(); // Recursive call to go back to category selection
         cancel('Operation cancelled.');
         return main();
     }
@@ -91,7 +196,7 @@ async function handleCreate() {
         // Run the create logic
         // We use process.cwd() as the base for the output path
         const targetPath = path.resolve(process.cwd(), outputDir as string);
-        createExample(exampleName as string, targetPath);
+        await createExample(exampleName as string, targetPath);
 
         s.stop('Project created successfully!');
 
@@ -113,13 +218,30 @@ To get started:
 }
 
 async function handleList() {
-    console.log(chalk.cyan('\nAvailable Examples:\n'));
+    console.log(chalk.cyan.bold('\n📚 Available Examples (Categorized):\n'));
+
+    const categories: Record<string, any[]> = {};
     Object.entries(EXAMPLES_MAP).forEach(([key, value]: [string, any]) => {
-        console.log(`  ${chalk.bold(value.title || key)} (${chalk.yellow(value.category)})`);
-        console.log(`  ${chalk.gray(value.description)}`);
-        console.log(`  Tags: ${value.tags.join(', ')}`);
-        console.log();
+        const cat = value.category || 'Uncategorized';
+        if (!categories[cat]) {
+            categories[cat] = [];
+        }
+        categories[cat].push({ key, ...value });
     });
+
+    for (const [category, examples] of Object.entries(categories)) {
+        console.log(chalk.yellow.bold(`\n📂 ${category.charAt(0).toUpperCase() + category.slice(1).replace(/-/g, ' ')}`));
+        console.log(chalk.gray('  ' + '─'.repeat(50)));
+
+        examples.forEach((example: any) => {
+            console.log(`  ${chalk.bold.white(example.title || example.key)}`);
+            console.log(`    ${chalk.gray(example.description)}`);
+            if (example.tags && example.tags.length > 0) {
+                console.log(`    ${chalk.dim('Tags:')} ${chalk.blue(example.tags.join(', '))}`);
+            }
+            console.log();
+        });
+    }
 
     await text({
         message: 'Press Enter to return to menu',
@@ -131,11 +253,6 @@ async function handleList() {
 }
 
 async function handleValidate() {
-    // We can try to import validation logic or run it via execa if it's a separate script
-    // Since we are compiled, we might want to just run the validation script logic
-    // But validation logic is in validation-example.ts. We didn't export it nicely.
-    // For now, let's just say this feature is for dev environment.
-
     console.log(chalk.yellow('Validation is currently only supported in development environment via "npm run validate"'));
 
     await text({

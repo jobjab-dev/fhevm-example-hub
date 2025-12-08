@@ -173,7 +173,7 @@ describe("AccessControlExample", function () {
 To generate this example locally:
 
 ```bash
-npx run create access-control ./my-access-control
+npm run create access-control ./my-access-control
 ```
 
 Then run tests:
@@ -181,6 +181,7 @@ Then run tests:
 ```bash
 cd ./my-access-control
 npm install
+npm run compile
 npm run test
 ```
 

@@ -121,7 +121,7 @@ describe("InputProofExample", function () {
 To generate this example locally:
 
 ```bash
-npx run create input-proofs ./my-input-proofs
+npm run create input-proofs ./my-input-proofs
 ```
 
 Then run tests:
@@ -129,6 +129,7 @@ Then run tests:
 ```bash
 cd ./my-input-proofs
 npm install
+npm run compile
 npm run test
 ```
 

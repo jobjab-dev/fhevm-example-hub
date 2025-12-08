@@ -434,7 +434,7 @@ describe("HighestDieRoll", function () {
 To generate this example locally:
 
 ```bash
-npx run create public-decrypt-multiple-values ./my-public-decrypt-multiple-values
+npm run create public-decrypt-multiple-values ./my-public-decrypt-multiple-values
 ```
 
 Then run tests:
@@ -442,6 +442,7 @@ Then run tests:
 ```bash
 cd ./my-public-decrypt-multiple-values
 npm install
+npm run compile
 npm run test
 ```
 
