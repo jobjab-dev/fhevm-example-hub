@@ -1,10 +1,11 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Terminal, Copy, Check, Filter, Code2, Lock, Shield, Cpu } from 'lucide-react';
+import { Terminal, Copy, Check, Code2, Lock, Shield, Cpu, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 import catalogData from '../data/catalog.json';
 import { Link } from 'react-router-dom';
 import ScrambleText from '../components/ScrambleText';
+import { useChat } from '../context/ChatContext';
 
 const EXAMPLES = Object.entries(catalogData).map(([key, data]) => ({ key, ...data }));
 
@@ -42,10 +43,19 @@ export default function Home() {
     return groups;
   }, [searchTerm]);
 
+
+
   const copyCommand = () => {
     navigator.clipboard.writeText(`npx create-fhevm-example ${selectedExampleKey} ./${selectedExampleKey.split('/')[1] || selectedExampleKey}`);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const { openChat, sendMessage } = useChat();
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      openChat(searchTerm);
+    }
   };
 
   return (
@@ -109,18 +119,30 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Search */}
+      {/* AI Search Bar */}
       <div className="sticky top-16 z-30 bg-black/80 backdrop-blur-md border-b border-white/5 py-4">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="relative w-full max-w-xl mx-auto">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
-            <input
-              type="text"
-              placeholder="Search examples..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-zinc-900/80 border border-white/10 rounded-lg py-3 pl-10 pr-4 text-sm focus:outline-none focus:border-yellow-500/50 transition-colors"
-            />
+          <div className="relative w-full max-w-xl mx-auto group">
+            <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/20 to-purple-500/20 rounded-lg blur opacity-0 group-focus-within:opacity-100 transition-opacity duration-500" />
+            <div className="relative flex items-center bg-zinc-900/90 border border-white/10 rounded-lg overflow-hidden group-focus-within:border-yellow-500/30 transition-colors">
+              <div className="pl-4 pr-3 text-yellow-500">
+                <Sparkles size={18} />
+              </div>
+              <input
+                type="text"
+                placeholder="Ask AI or search examples..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={handleKeyDown}
+                className="w-full bg-transparent py-3 text-sm focus:outline-none text-white placeholder-gray-500"
+              />
+              <div className="pr-2">
+                <div className="hidden md:flex items-center gap-2 px-2 py-1 rounded border border-white/10 bg-white/5">
+                  <span className="text-[10px] font-mono text-gray-400">ENTER</span>
+                  <span className="text-[10px] text-gray-500">to ask</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

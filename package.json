@@ -52,12 +52,16 @@
   },
   "dependencies": {
     "@clack/prompts": "^0.9.0",
+    "@google/genai": "^1.32.0",
+    "@google/generative-ai": "^0.24.1",
     "@types/figlet": "^1.7.0",
     "chalk": "^5.4.0",
     "commander": "^13.0.0",
     "execa": "^9.5.2",
     "figlet": "^1.9.4",
     "gradient-string": "^3.0.0",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
     "tiged": "^2.12.7"
   }
 }

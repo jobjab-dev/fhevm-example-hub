@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import GridBackground from '../components/GridBackground';
+import { ChatWidget } from '../components/AIChat/ChatWidget';
 
 const Layout = () => {
   const location = useLocation();
@@ -128,6 +129,7 @@ const Layout = () => {
           </p>
         </div>
       </footer>
+      <ChatWidget />
     </div >
   );
 };
