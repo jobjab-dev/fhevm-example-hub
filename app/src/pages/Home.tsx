@@ -51,31 +51,51 @@ export default function Home() {
   return (
     <div className="pb-20 relative z-10">
       {/* Hero Section */}
-      <section className="relative pt-20 pb-32 overflow-hidden">
+      <section className="relative pt-24 pb-32 overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-64 bg-yellow-500/10 blur-[120px] -z-10" />
 
         <div className="max-w-7xl mx-auto px-4 text-center">
-          <div className="inline-block border border-yellow-500/20 bg-yellow-500/5 px-4 py-1.5 rounded-full text-yellow-400 text-xs font-mono mb-8 tracking-widest uppercase backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="inline-block border border-yellow-500/20 bg-yellow-500/5 px-4 py-1.5 rounded-full text-yellow-500 text-xs font-mono mb-8 tracking-widest uppercase backdrop-blur-sm"
+          >
             Confidential Smart Contracts
-          </div>
+          </motion.div>
 
-          {/* Adjusted font size: reduced from text-5xl/7xl to text-4xl/6xl */}
-          <h1 className="text-4xl md:text-6xl font-bold mb-8 tracking-tight">
-            FHEVM <span className="text-yellow-400">Example Hub</span>
-          </h1>
+          {/* Adjusted font size: text-4xl on mobile, text-7xl on desktop */}
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="text-4xl md:text-5xl lg:text-7xl font-bold mb-8 tracking-tight"
+          >
+            FHEVM <span className="text-yellow-400 text-glow">Example Hub</span>
+          </motion.h1>
 
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-12 leading-relaxed">
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-12 leading-relaxed"
+          >
             The complete catalog of Fully Homomorphic Encryption examples for Solidity.
             Clone, test, and deploy in seconds.
-          </p>
+          </motion.p>
 
           {/* Dynamic Command Bar */}
-          <div className="max-w-2xl mx-auto">
-            <div className="bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-xl p-2 flex items-center gap-2 shadow-2xl">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="max-w-xl mx-auto"
+          >
+            <div className="bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-xl p-2 flex items-center gap-2 shadow-2xl ring-1 ring-white/5">
               <div className="pl-4 pr-2 text-gray-500">
                 <Terminal size={20} />
               </div>
-              <code className="flex-grow font-mono text-sm text-left text-gray-300 overflow-x-auto whitespace-nowrap scrollbar-hide">
+              <code className="flex-grow font-mono text-xs md:text-sm text-left text-gray-300 overflow-x-auto whitespace-nowrap scrollbar-hide py-2">
                 <span className="text-purple-400">npx</span> run create <span className="text-yellow-400">{selectedExampleKey}</span> ./my-repo
               </code>
               <button
@@ -85,12 +105,12 @@ export default function Home() {
                 {copied ? <Check size={20} className="text-green-400" /> : <Copy size={20} />}
               </button>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* Search */}
-      <div className="sticky top-16 z-40 bg-black/80 backdrop-blur-md border-b border-white/5 py-4">
+      <div className="sticky top-16 z-30 bg-black/80 backdrop-blur-md border-b border-white/5 py-4">
         <div className="max-w-7xl mx-auto px-4">
           <div className="relative w-full max-w-xl mx-auto">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
@@ -112,8 +132,8 @@ export default function Home() {
         ))}
 
         {Object.keys(groupedExamples).length === 0 && (
-          <div className="text-center py-20 text-gray-500">
-            No examples found matching your criteria.
+          <div className="text-center py-20 text-gray-500 text-lg font-mono">
+            No examples found.
           </div>
         )}
       </div>
@@ -127,7 +147,7 @@ function CategorySection({ category, examples }: { category: string, examples: a
   return (
     <div>
       <div
-        className="flex items-center gap-4 mb-8 border-b border-white/10 pb-4 cursor-pointer group select-none"
+        className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 mb-8 border-b border-white/10 pb-4 cursor-pointer group select-none"
         onMouseEnter={() => setHoverKey(prev => prev + 1)}
       >
         <h2 className="text-3xl font-bold text-white flex items-center gap-3 group-hover:text-yellow-400 transition-colors">

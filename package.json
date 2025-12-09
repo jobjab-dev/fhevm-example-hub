@@ -20,6 +20,7 @@
     "validate:all": "node --loader ts-node/esm scripts/validate_all.ts",
     "lint": "echo \"No linting configured\" && exit 0",
     "update:deps": "node --loader ts-node/esm scripts/update-deps.ts",
+    "sync:content": "node --loader ts-node/esm scripts/sync-content.ts",
     "build:web": "cd app && npm run build",
     "dev:web": "cd app && npm run dev",
     "preview:web": "cd app && npm run preview",

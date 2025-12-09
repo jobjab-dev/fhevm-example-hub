@@ -9,9 +9,24 @@
 }
 
 .scrollbar-hide::-webkit-scrollbar {
-    display: none;
+  display: none;
 }
+
 .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@layer utilities {
+  .glass-panel {
+    @apply bg-zinc-900/40 backdrop-blur-md border border-white/10;
+  }
+
+  .glass-button {
+    @apply bg-white/5 hover:bg-white/10 border border-white/5 transition-colors backdrop-blur-sm;
+  }
+
+  .text-glow {
+    text-shadow: 0 0 20px rgba(250, 204, 21, 0.3);
+  }
 }
