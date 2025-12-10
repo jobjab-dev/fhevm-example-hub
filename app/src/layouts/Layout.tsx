@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { Terminal, BookOpen, LayoutDashboard, Github, Menu, X } from 'lucide-react';
+import { BookOpen, LayoutDashboard, Github, Menu, X } from 'lucide-react';
 import clsx from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -13,7 +13,6 @@ const Layout = () => {
 
   const navItems = [
     { label: 'Catalog', path: '/', icon: BookOpen },
-    { label: 'Learning Paths', path: '/paths', icon: Terminal },
     { label: 'Dev Dashboard', path: '/dev', icon: LayoutDashboard },
   ];
 

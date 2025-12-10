@@ -1,12 +1,14 @@
-import React, { useEffect, useRef } from 'react';
-import { X, Send, MessageSquare } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { X, Send, MessageSquare, Maximize2, Minimize2, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useChat } from '../../context/ChatContext';
 import { ChatMessage } from './ChatMessage';
+import clsx from 'clsx';
 
 export const ChatWidget = () => {
-    const { isOpen, toggleChat, messages, sendMessage, isTyping } = useChat();
+    const { isOpen, toggleChat, messages, sendMessage, isTyping, clearChat } = useChat();
     const [input, setInput] = React.useState('');
+    const [isExpanded, setIsExpanded] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const scrollToBottom = () => {
@@ -15,7 +17,7 @@ export const ChatWidget = () => {
 
     useEffect(() => {
         scrollToBottom();
-    }, [messages, isTyping, isOpen]);
+    }, [messages, isTyping, isOpen, isExpanded]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -47,12 +49,35 @@ export const ChatWidget = () => {
                         initial={{ opacity: 0, y: 20, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 20, scale: 0.95 }}
-                        className="fixed bottom-24 right-6 w-96 max-w-[calc(100vw-3rem)] h-[600px] max-h-[calc(100vh-8rem)] bg-black/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden ring-1 ring-white/5"
+                        transition={{ duration: 0.2 }}
+                        className={clsx(
+                            "fixed bottom-24 right-6 bg-black/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden ring-1 ring-white/5 transition-all duration-300 ease-in-out",
+                            isExpanded
+                                ? "w-[800px] h-[80vh] max-w-[calc(100vw-3rem)]"
+                                : "w-96 h-[600px] max-w-[calc(100vw-3rem)] max-h-[calc(100vh-8rem)]"
+                        )}
                     >
                         {/* Header */}
-                        <div className="p-4 border-b border-white/10 flex items-center gap-3 bg-zinc-900/50">
-                            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                            <h3 className="font-bold text-white">FHEVM Assistant</h3>
+                        <div className="p-4 border-b border-white/10 flex items-center justify-between bg-zinc-900/50">
+                            <div className="flex items-center gap-3">
+                                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                                <h3 className="font-bold text-white">FHEVM Assistant</h3>
+                            </div>
+                            <div className="flex items-center gap-1">
+                                <button
+                                    onClick={clearChat}
+                                    className="text-gray-400 hover:text-red-400 transition-colors p-1 hover:bg-white/10 rounded"
+                                    title="Clear Chat History"
+                                >
+                                    <Trash2 size={18} />
+                                </button>
+                                <button
+                                    onClick={() => setIsExpanded(!isExpanded)}
+                                    className="text-gray-400 hover:text-white transition-colors p-1 hover:bg-white/10 rounded"
+                                >
+                                    {isExpanded ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
+                                </button>
+                            </div>
                         </div>
 
                         {/* Messages */}

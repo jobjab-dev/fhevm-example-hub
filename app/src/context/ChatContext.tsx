@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { sendMessageToAI } from '../services/ai';
 
 interface Message {
@@ -15,20 +15,35 @@ interface ChatContextType {
     sendMessage: (content: string) => Promise<void>;
     isTyping: boolean;
     openChat: (initialMessage?: string) => void;
+    clearChat: () => void;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export const ChatProvider = ({ children }: { children: ReactNode }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [messages, setMessages] = useState<Message[]>([
-        {
+    const [messages, setMessages] = useState<Message[]>(() => {
+        const saved = localStorage.getItem('fhevm-chat-history');
+        if (saved) {
+            try {
+                return JSON.parse(saved);
+            } catch (e) {
+                console.error("Failed to parse chat history", e);
+            }
+        }
+        return [{
             id: 'welcome',
             role: 'assistant',
             content: 'Hello! I am your FHEVM assistant. Ask me anything about Zama, confidential smart contracts, or the examples in this hub.',
             timestamp: Date.now()
-        }
-    ]);
+        }];
+    });
+
+    // Persist messages
+    useEffect(() => {
+        localStorage.setItem('fhevm-chat-history', JSON.stringify(messages));
+    }, [messages]);
+
     const [isTyping, setIsTyping] = useState(false);
 
     const toggleChat = () => setIsOpen(prev => !prev);
@@ -38,6 +53,17 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         if (initialMessage) {
             await sendMessage(initialMessage);
         }
+    };
+
+    const clearChat = () => {
+        const welcomeMsg: Message = {
+            id: 'welcome',
+            role: 'assistant',
+            content: 'Hello! I am your FHEVM assistant. Ask me anything about Zama, confidential smart contracts, or the examples in this hub.',
+            timestamp: Date.now()
+        };
+        setMessages([welcomeMsg]);
+        localStorage.removeItem('fhevm-chat-history');
     };
 
     const sendMessage = async (content: string) => {
@@ -52,7 +78,15 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         setIsTyping(true);
 
         try {
-            const response = await sendMessageToAI(content);
+            // Prepare history for AI (convert 'assistant' to 'model')
+            // Exclude the very last message we just added effectively, or just map all including the new one
+            // We need to send [ ...prevMessages, userMsg ] but mapped
+            const history = [...messages, userMsg].map(m => ({
+                role: m.role === 'assistant' ? 'model' : 'user' as 'user' | 'model',
+                content: m.content
+            }));
+
+            const response = await sendMessageToAI(history);
 
             const aiMsg: Message = {
                 id: (Date.now() + 1).toString(),
@@ -75,7 +109,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     };
 
     return (
-        <ChatContext.Provider value={{ isOpen, toggleChat, messages, sendMessage, isTyping, openChat }}>
+        <ChatContext.Provider value={{ isOpen, toggleChat, messages, sendMessage, isTyping, openChat, clearChat }}>
             {children}
         </ChatContext.Provider>
     );

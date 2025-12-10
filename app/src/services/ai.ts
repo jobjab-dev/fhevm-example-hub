@@ -47,16 +47,22 @@ export const initAI = () => {
   ai = new GoogleGenAI({ apiKey: API_KEY });
 };
 
-export const sendMessageToAI = async (message: string) => {
+export const sendMessageToAI = async (history: { role: 'user' | 'model', content: string }[]) => {
   if (!ai) initAI();
   if (!ai) {
     return "AI is not configured (Missing VITE_GEMINI_API_KEY). Please add your API key to .env file.";
   }
 
   try {
+    // Convert generic history to Gemini format
+    const contents = history.map(msg => ({
+      role: msg.role,
+      parts: [{ text: msg.content }]
+    }));
+
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
-      contents: message,
+      contents: contents, // Pass full history
       config: {
         systemInstruction: SYSTEM_PROMPT,
       }

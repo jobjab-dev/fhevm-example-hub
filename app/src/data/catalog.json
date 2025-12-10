@@ -5,10 +5,17 @@
     "description": "A simple FHE counter demonstrating basic encrypted operations",
     "category": "basic",
     "title": "Encrypted Counter",
-    "tags": ["basic", "counter", "beginner"],
+    "tags": [
+      "basic",
+      "counter",
+      "beginner"
+    ],
     "level": "beginner",
     "status": "stable",
-    "networks": ["local", "zama-testnet"],
+    "networks": [
+      "local",
+      "zama-testnet"
+    ],
     "docSlug": "basic/fhe-counter"
   },
   "encrypt-single-value": {
@@ -17,10 +24,16 @@
     "description": "Demonstrates FHE encryption mechanism and common pitfalls",
     "category": "encryption",
     "title": "Encrypt Single Value",
-    "tags": ["encryption", "beginner"],
+    "tags": [
+      "encryption",
+      "beginner"
+    ],
     "level": "beginner",
     "status": "stable",
-    "networks": ["local", "zama-testnet"],
+    "networks": [
+      "local",
+      "zama-testnet"
+    ],
     "docSlug": "encryption/encrypt-single-value"
   },
   "encrypt-multiple-values": {
@@ -29,10 +42,16 @@
     "description": "Shows how to encrypt and handle multiple values",
     "category": "encryption",
     "title": "Encrypt Multiple Values",
-    "tags": ["encryption", "beginner"],
+    "tags": [
+      "encryption",
+      "beginner"
+    ],
     "level": "beginner",
     "status": "stable",
-    "networks": ["local", "zama-testnet"],
+    "networks": [
+      "local",
+      "zama-testnet"
+    ],
     "docSlug": "encryption/encrypt-multiple-values"
   },
   "user-decrypt-single-value": {
@@ -41,10 +60,17 @@
     "description": "Demonstrates user decryption and permission requirements",
     "category": "decryption",
     "title": "User Decrypt Single",
-    "tags": ["decryption", "user", "intermediate"],
+    "tags": [
+      "decryption",
+      "user",
+      "intermediate"
+    ],
     "level": "intermediate",
     "status": "stable",
-    "networks": ["local", "zama-testnet"],
+    "networks": [
+      "local",
+      "zama-testnet"
+    ],
     "docSlug": "decryption/user-decrypt-single-value"
   },
   "user-decrypt-multiple-values": {
@@ -53,10 +79,17 @@
     "description": "Shows how to decrypt multiple encrypted values",
     "category": "decryption",
     "title": "User Decrypt Multiple",
-    "tags": ["decryption", "user", "intermediate"],
+    "tags": [
+      "decryption",
+      "user",
+      "intermediate"
+    ],
     "level": "intermediate",
     "status": "stable",
-    "networks": ["local", "zama-testnet"],
+    "networks": [
+      "local",
+      "zama-testnet"
+    ],
     "docSlug": "decryption/user-decrypt-multiple-values"
   },
   "public-decrypt-single-value": {
@@ -65,10 +98,17 @@
     "description": "Demonstrates public decryption mechanism",
     "category": "decryption",
     "title": "Public Decrypt Single",
-    "tags": ["decryption", "public", "intermediate"],
+    "tags": [
+      "decryption",
+      "public",
+      "intermediate"
+    ],
     "level": "intermediate",
     "status": "stable",
-    "networks": ["local", "zama-testnet"],
+    "networks": [
+      "local",
+      "zama-testnet"
+    ],
     "docSlug": "decryption/public-decrypt-single-value"
   },
   "public-decrypt-multiple-values": {
@@ -77,10 +117,17 @@
     "description": "Shows public decryption with multiple values",
     "category": "decryption",
     "title": "Public Decrypt Multiple",
-    "tags": ["decryption", "public", "intermediate"],
+    "tags": [
+      "decryption",
+      "public",
+      "intermediate"
+    ],
     "level": "intermediate",
     "status": "stable",
-    "networks": ["local", "zama-testnet"],
+    "networks": [
+      "local",
+      "zama-testnet"
+    ],
     "docSlug": "decryption/public-decrypt-multiple-values"
   },
   "fhe-operations": {
@@ -89,10 +136,17 @@
     "description": "Demonstrates FHE arithmetic operations (Add, Sub, Mul)",
     "category": "operations",
     "title": "FHE Operations",
-    "tags": ["operations", "math", "beginner"],
+    "tags": [
+      "operations",
+      "math",
+      "beginner"
+    ],
     "level": "beginner",
     "status": "stable",
-    "networks": ["local", "zama-testnet"],
+    "networks": [
+      "local",
+      "zama-testnet"
+    ],
     "docSlug": "operations/fhe-operations"
   },
   "fhe-if-then-else": {
@@ -101,10 +155,17 @@
     "description": "Shows conditional operations on encrypted values",
     "category": "operations",
     "title": "FHE If-Then-Else",
-    "tags": ["operations", "logic", "intermediate"],
+    "tags": [
+      "operations",
+      "logic",
+      "intermediate"
+    ],
     "level": "intermediate",
     "status": "stable",
-    "networks": ["local", "zama-testnet"],
+    "networks": [
+      "local",
+      "zama-testnet"
+    ],
     "docSlug": "operations/fhe-if-then-else"
   },
   "access-control": {
@@ -113,10 +174,17 @@
     "description": "Demonstrates FHE.allow and FHE.allowTransient for access control",
     "category": "concepts",
     "title": "Access Control",
-    "tags": ["concepts", "security", "intermediate"],
+    "tags": [
+      "concepts",
+      "security",
+      "intermediate"
+    ],
     "level": "intermediate",
     "status": "stable",
-    "networks": ["local", "zama-testnet"],
+    "networks": [
+      "local",
+      "zama-testnet"
+    ],
     "docSlug": "concepts/access-control"
   },
   "input-proofs": {
@@ -125,10 +193,17 @@
     "description": "Shows correct usage of input proofs to prevent malling",
     "category": "concepts",
     "title": "Input Proofs",
-    "tags": ["concepts", "security", "advanced"],
+    "tags": [
+      "concepts",
+      "security",
+      "advanced"
+    ],
     "level": "advanced",
     "status": "stable",
-    "networks": ["local", "zama-testnet"],
+    "networks": [
+      "local",
+      "zama-testnet"
+    ],
     "docSlug": "concepts/input-proofs"
   },
   "anti-patterns": {
@@ -137,10 +212,16 @@
     "description": "Highlights common mistakes and how to fix them",
     "category": "concepts",
     "title": "Anti-Patterns",
-    "tags": ["concepts", "security", "best-practices"],
+    "tags": [
+      "concepts",
+      "security",
+      "best-practices"
+    ],
     "level": "intermediate",
     "status": "stable",
-    "networks": ["local"],
+    "networks": [
+      "local"
+    ],
     "docSlug": "concepts/anti-patterns"
   },
   "handles": {
@@ -149,10 +230,17 @@
     "description": "Explains the concept of FHE handles and their lifecycle",
     "category": "concepts",
     "title": "Handles Lifecycle",
-    "tags": ["concepts", "core", "advanced"],
+    "tags": [
+      "concepts",
+      "core",
+      "advanced"
+    ],
     "level": "advanced",
-    "status": "experimental",
-    "networks": ["local", "zama-testnet"],
+    "status": "stable",
+    "networks": [
+      "local",
+      "zama-testnet"
+    ],
     "docSlug": "concepts/handles",
     "extraDoc": "\n## 📊 Lifecycle Visualization\n\n```mermaid\ngraph TD\n  A[User encrypts value] -->|Generate| B[Handle h1]\n  B -->|Tx Call| C[Contract receives h1]\n  C -->|FHE Op| D[New Handle h2 Created]\n  D -->|Store| E[State Variable]\n  E -->|FHE.allow| F[Re-encryption for User]\n```\n"
   },
@@ -162,10 +250,17 @@
     "description": "Sealed-bid auction with confidential bids",
     "category": "applications",
     "title": "Blind Auction",
-    "tags": ["applications", "defi", "advanced"],
+    "tags": [
+      "applications",
+      "defi",
+      "advanced"
+    ],
     "level": "advanced",
     "status": "stable",
-    "networks": ["local", "zama-testnet"],
+    "networks": [
+      "local",
+      "zama-testnet"
+    ],
     "docSlug": "applications/blind-auction",
     "highlight": true
   },
@@ -175,10 +270,16 @@
     "description": "Interactive Lab: Learn why input proofs are bound to contracts",
     "category": "labs",
     "title": "Lab: Input Proofs",
-    "tags": ["education", "security", "input-proofs"],
+    "tags": [
+      "education",
+      "security",
+      "input-proofs"
+    ],
     "level": "intermediate",
     "status": "stable",
-    "networks": ["local"],
+    "networks": [
+      "local"
+    ],
     "docSlug": "labs/lab-input-proof",
     "lab": true
   },
@@ -188,10 +289,16 @@
     "description": "Security Lab: Demonstrates input binding to sender address",
     "category": "labs",
     "title": "Lab: Wrong Signer",
-    "tags": ["education", "security", "input-proofs"],
+    "tags": [
+      "education",
+      "security",
+      "input-proofs"
+    ],
     "level": "intermediate",
     "status": "stable",
-    "networks": ["local"],
+    "networks": [
+      "local"
+    ],
     "docSlug": "labs/lab-wrong-signer",
     "lab": true
   },
@@ -201,10 +308,16 @@
     "description": "Security Lab: Handling replay attacks and state protection",
     "category": "labs",
     "title": "Lab: Replay Attack",
-    "tags": ["education", "security", "input-proofs"],
+    "tags": [
+      "education",
+      "security",
+      "input-proofs"
+    ],
     "level": "intermediate",
     "status": "stable",
-    "networks": ["local"],
+    "networks": [
+      "local"
+    ],
     "docSlug": "labs/lab-replay-attack",
     "lab": true
   },
@@ -214,10 +327,17 @@
     "description": "ERC7984 confidential token standard implementation",
     "category": "openzeppelin",
     "title": "ERC7984 Token",
-    "tags": ["openzeppelin", "token", "standard"],
+    "tags": [
+      "openzeppelin",
+      "token",
+      "standard"
+    ],
     "level": "intermediate",
     "status": "stable",
-    "networks": ["local", "zama-testnet"],
+    "networks": [
+      "local",
+      "zama-testnet"
+    ],
     "docSlug": "openzeppelin/erc7984-example",
     "extraDependencies": {
       "openzeppelin-confidential-contracts": "^0.2.1"
@@ -229,10 +349,17 @@
     "description": "Wraps a public ERC20 token into a private ERC7984 token",
     "category": "openzeppelin",
     "title": "ERC20 Wrapper",
-    "tags": ["openzeppelin", "token", "wrapper"],
+    "tags": [
+      "openzeppelin",
+      "token",
+      "wrapper"
+    ],
     "level": "intermediate",
     "status": "stable",
-    "networks": ["local", "zama-testnet"],
+    "networks": [
+      "local",
+      "zama-testnet"
+    ],
     "docSlug": "openzeppelin/erc20-wrapper",
     "extraDependencies": {
       "openzeppelin-confidential-contracts": "^0.2.1"
@@ -244,10 +371,17 @@
     "description": "Atomic swap between ERC7984 and ERC20 tokens",
     "category": "openzeppelin",
     "title": "Swap ERC7984 <-> ERC20",
-    "tags": ["openzeppelin", "defi", "swap"],
+    "tags": [
+      "openzeppelin",
+      "defi",
+      "swap"
+    ],
     "level": "advanced",
     "status": "stable",
-    "networks": ["local", "zama-testnet"],
+    "networks": [
+      "local",
+      "zama-testnet"
+    ],
     "docSlug": "openzeppelin/erc7984-erc20-swap",
     "extraDependencies": {
       "openzeppelin-confidential-contracts": "^0.2.1"
@@ -259,10 +393,17 @@
     "description": "Atomic swap between two confidential ERC7984 tokens",
     "category": "openzeppelin",
     "title": "Swap ERC7984 <-> ERC7984",
-    "tags": ["openzeppelin", "defi", "swap"],
+    "tags": [
+      "openzeppelin",
+      "defi",
+      "swap"
+    ],
     "level": "advanced",
     "status": "stable",
-    "networks": ["local", "zama-testnet"],
+    "networks": [
+      "local",
+      "zama-testnet"
+    ],
     "docSlug": "openzeppelin/erc7984-erc7984-swap",
     "extraDependencies": {
       "openzeppelin-confidential-contracts": "^0.2.1"
@@ -274,14 +415,20 @@
     "description": "Confidential vesting wallet for ERC7984 tokens",
     "category": "openzeppelin",
     "title": "Vesting Wallet",
-    "tags": ["openzeppelin", "finance", "vesting"],
+    "tags": [
+      "openzeppelin",
+      "finance",
+      "vesting"
+    ],
     "level": "intermediate",
     "status": "stable",
-    "networks": ["local", "zama-testnet"],
+    "networks": [
+      "local",
+      "zama-testnet"
+    ],
     "docSlug": "openzeppelin/vesting-wallet",
     "extraDependencies": {
       "openzeppelin-confidential-contracts": "^0.2.1"
     }
   }
 }
-

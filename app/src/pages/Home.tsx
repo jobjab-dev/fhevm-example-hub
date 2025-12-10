@@ -6,6 +6,7 @@ import catalogData from '../data/catalog.json';
 import { Link } from 'react-router-dom';
 import ScrambleText from '../components/ScrambleText';
 import { useChat } from '../context/ChatContext';
+import { useTypewriter } from '../components/TypewriterSuggestions';
 
 const EXAMPLES = Object.entries(catalogData).map(([key, data]) => ({ key, ...data }));
 
@@ -22,6 +23,7 @@ export default function Home() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedExampleKey, setSelectedExampleKey] = useState<string>(EXAMPLES[0].key);
   const [copied, setCopied] = useState(false);
+  const typewriterText = useTypewriter();
 
   // Group examples by category
   const groupedExamples = useMemo(() => {
@@ -122,6 +124,13 @@ export default function Home() {
       {/* AI Search Bar */}
       <div className="sticky top-16 z-30 bg-black/80 backdrop-blur-md border-b border-white/5 py-4">
         <div className="max-w-7xl mx-auto px-4">
+
+          {/* Typewriter Prompt Effect */}
+          <div className="max-w-xl mx-auto text-center mb-2 h-5">
+            <span className="text-xs text-yellow-500/50 font-mono uppercase tracking-widest mr-2">Try asking:</span>
+            <span className="text-sm text-gray-400 font-mono">{typewriterText}</span>
+          </div>
+
           <div className="relative w-full max-w-xl mx-auto group">
             <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/20 to-purple-500/20 rounded-lg blur opacity-0 group-focus-within:opacity-100 transition-opacity duration-500" />
             <div className="relative flex items-center bg-zinc-900/90 border border-white/10 rounded-lg overflow-hidden group-focus-within:border-yellow-500/30 transition-colors">
