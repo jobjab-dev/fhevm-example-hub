@@ -30,11 +30,11 @@ export default function Dev() {
         </div>
 
         <div className="flex gap-4">
-          <a href="https://github.com/zama-ai/fhevm/issues" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-zinc-900/50 rounded-lg border border-white/10 text-gray-400 hover:text-white hover:border-white/30 transition-all">
+          <a href="https://github.com/jobjab-dev/fhevm-example-hub/issues" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-zinc-900/50 rounded-lg border border-white/10 text-gray-400 hover:text-white hover:border-white/30 transition-all">
             <Github size={16} />
             <span className="text-sm font-mono">Report Issue</span>
           </a>
-          <a href="https://docs.zama.ai/fhevm" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-yellow-500/10 rounded-lg border border-yellow-500/20 text-yellow-500 hover:bg-yellow-500/20 transition-all">
+          <a href="https://github.com/jobjab-dev/fhevm-example-hub#readme" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-yellow-500/10 rounded-lg border border-yellow-500/20 text-yellow-500 hover:bg-yellow-500/20 transition-all">
             <span className="text-sm font-mono">Documentation</span>
             <ExternalLink size={14} />
           </a>

@@ -51,7 +51,7 @@ const Layout = () => {
 
           <div className="hidden md:flex items-center gap-4">
             <a
-              href="https://github.com/zama-ai/fhevm"
+              href="https://github.com/jobjab-dev/fhevm-example-hub"
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-400 hover:text-white transition-colors"
@@ -105,7 +105,7 @@ const Layout = () => {
                 ))}
                 <div className="h-px bg-white/10 my-2" />
                 <a
-                  href="https://github.com/zama-ai/fhevm"
+                  href="https://github.com/jobjab-dev/fhevm-example-hub"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-4 text-lg font-medium text-gray-400 hover:text-white p-2"
