@@ -22,9 +22,11 @@ const Layout = () => {
       <header className="border-b border-white/10 sticky top-0 bg-black/80 backdrop-blur-md z-50">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 group z-50 relative" onClick={() => setMobileMenuOpen(false)}>
-            <div className="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center font-bold text-black group-hover:rotate-3 transition-transform">
-              Z
-            </div>
+            <img
+              src="/android-chrome-192x192.png"
+              alt="FHEVM Hub Logo"
+              className="w-8 h-8 rounded-lg group-hover:rotate-3 transition-transform"
+            />
             <span className="font-mono font-bold text-lg tracking-tight">
               FHEVM <span className="text-yellow-500">Hub</span>
             </span>

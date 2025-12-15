@@ -1,6 +1,6 @@
 {
   "name": "jobjab-fhevm-examples",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Central hub for generating FHEVM example repositories - Interactive CLI to scaffold production-ready FHEVM projects",
   "type": "module",
   "repository": {

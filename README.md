@@ -125,6 +125,8 @@ This will start a Vite development server in the `app/` directory.
 
 We provide several scripts to help manage the hub:
 
+> 📖 **For detailed script documentation, see [scripts/README.md](scripts/README.md)**
+
 - **`npm run create <example-name> [dir]`**: Run the generator script directly without the UI menu.
   - Example: `npm run create fhe-counter ./my-test`
 - **`npm run create:category`**: Helper to scaffold a new category folder structure.
