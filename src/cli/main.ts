@@ -46,10 +46,29 @@ export async function main() {
     const border = '═'.repeat(width);
 
     // Check for arguments (Non-interactive mode)
-    const args = process.argv.slice(2);
-    if (args.length > 0) {
+    const rawArgs = process.argv.slice(2);
+
+    // Filter out any args that look like paths (npx sometimes adds extra args)
+    // We want args that look like example names (lowercase, hyphens) or paths starting with ./
+    const args = rawArgs.filter(arg => {
+        // Skip if it looks like a node/npx internal path
+        if (arg.includes('node_modules') || arg.includes('\\npx') || arg.includes('/npx')) {
+            return false;
+        }
+        // Skip if it's a flag we don't recognize (but keep --help, -h)
+        if (arg.startsWith('-') && arg !== '--help' && arg !== '-h') {
+            return false;
+        }
+        return true;
+    });
+
+    // Check if first arg is a known example or looks like an example name
+    const exampleKeys = Object.keys(EXAMPLES_MAP);
+    const firstArg = args[0];
+
+    if (args.length > 0 && firstArg) {
         // Handle help flag
-        if (args[0] === '--help' || args[0] === '-h') {
+        if (firstArg === '--help' || firstArg === '-h') {
             console.log(chalk.cyan(`
 FHEVM Example Generator v${version}
 `));
@@ -60,25 +79,35 @@ FHEVM Example Generator v${version}
 Arguments:
   ${chalk.yellow('example-name')}    Name of the example to generate (e.g., fhe-counter)
   ${chalk.yellow('output-dir')}      Optional output directory (default: ./fhevm-example-<name>)
+
+Available examples:
+${exampleKeys.map(k => `  ${chalk.green(k)}`).join('\n')}
             `);
             process.exit(0);
         }
 
-        // Direct create mode
-        const exampleName = args[0];
-        const outputDir = args[1] || path.join(process.cwd(), `fhevm-example-${exampleName}`);
+        // Check if first arg is a valid example name
+        if (exampleKeys.includes(firstArg)) {
+            // Direct create mode
+            const exampleName = firstArg;
+            const outputDir = args[1] || path.join(process.cwd(), `fhevm-example-${exampleName}`);
 
-        console.log(chalk.gray(`\n  ╔${border}╗`));
-        console.log(chalk.gray(`  ║`) + `  FHEVM CLI v${version}`.padEnd(width + 10) + chalk.gray(`   ║`));
-        console.log(chalk.gray(`  ╚${border}╝\n`));
+            console.log(chalk.gray(`\n  ╔${border}╗`));
+            console.log(chalk.gray(`  ║`) + `  FHEVM CLI v${version} - Direct Mode`.padEnd(width + 10) + chalk.gray(`   ║`));
+            console.log(chalk.gray(`  ╚${border}╝\n`));
 
-        try {
-            await createExample(exampleName, outputDir);
-            process.exit(0);
-        } catch (e: any) {
-            console.error(chalk.red(`Error: ${e.message}`));
-            process.exit(1);
+            console.log(chalk.cyan(`Creating example: ${chalk.bold(exampleName)}`));
+            console.log(chalk.cyan(`Output: ${chalk.bold(outputDir)}\n`));
+
+            try {
+                await createExample(exampleName, outputDir);
+                process.exit(0);
+            } catch (e: any) {
+                console.error(chalk.red(`Error: ${e.message}`));
+                process.exit(1);
+            }
         }
+        // If first arg doesn't match any example, fall through to interactive mode
     }
 
     console.log(chalk.gray(`\n  ╔${border}╗`));

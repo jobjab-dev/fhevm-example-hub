@@ -1,6 +1,6 @@
 {
   "name": "jobjab-fhevm-examples",
-  "version": "1.0.3",
+  "version": "1.0.5",
   "description": "Central hub for generating FHEVM example repositories - Interactive CLI to scaffold production-ready FHEVM projects",
   "type": "module",
   "repository": {
@@ -21,7 +21,7 @@
   "scripts": {
     "test": "echo \"See README.md for running tests on generated examples\" && exit 0",
     "clean": "rimraf dist",
-    "postinstall": "cd app && npm install",
+    "install:app": "cd app && npm install",
     "prebuild": "npm run clean",
     "build": "tsc -p tsconfig.cli.json",
     "prepublishOnly": "npm run build",
