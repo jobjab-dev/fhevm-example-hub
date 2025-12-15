@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 interface ScrambleTextProps {
     text: string;
@@ -14,11 +14,11 @@ export default function ScrambleText({
     text,
     className = '',
     scrambleSpeed = 30,
-    revealSpeed = 50,
+    revealSpeed: _revealSpeed = 50,
     trigger = true
 }: ScrambleTextProps) {
     const [displayText, setDisplayText] = useState(text);
-    const [isScrambling, setIsScrambling] = useState(false);
+    const [_isScrambling, setIsScrambling] = useState(false);
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
@@ -30,10 +30,10 @@ export default function ScrambleText({
         clearInterval(intervalRef.current as NodeJS.Timeout);
 
         intervalRef.current = setInterval(() => {
-            setDisplayText(prev =>
+            setDisplayText(_prev =>
                 text
                     .split('')
-                    .map((char, index) => {
+                    .map((_char, index) => {
                         if (index < iteration) {
                             return text[index];
                         }

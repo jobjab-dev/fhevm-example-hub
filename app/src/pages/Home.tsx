@@ -1,7 +1,6 @@
-import React, { useState, useMemo } from 'react';
-import { Terminal, Copy, Check, Code2, Lock, Shield, Cpu, Sparkles } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Copy, Check, Code2, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import clsx from 'clsx';
 import catalogData from '../data/catalog.json';
 import { Link } from 'react-router-dom';
 import ScrambleText from '../components/ScrambleText';
@@ -10,18 +9,11 @@ import { useTypewriter } from '../components/TypewriterSuggestions';
 
 const EXAMPLES = Object.entries(catalogData).map(([key, data]) => ({ key, ...data }));
 
-// Define category order and icons
-const CATEGORY_CONFIG: Record<string, { icon: any, label: string }> = {
-  'basic': { icon: Code2, label: 'Basic Concepts' },
-  'encryption': { icon: Lock, label: 'Encryption' },
-  'decryption': { icon: Shield, label: 'Decryption' },
-  'contracts': { icon: Cpu, label: 'Smart Contracts' },
-  // Fallback for others
-};
+
 
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedExampleKey, setSelectedExampleKey] = useState<string>(EXAMPLES[0].key);
+  const [_selectedExampleKey] = useState<string>(EXAMPLES[0].key);
   const [copied, setCopied] = useState(false);
   const typewriterText = useTypewriter();
 
@@ -47,13 +39,7 @@ export default function Home() {
 
 
 
-  const copyCommand = () => {
-    navigator.clipboard.writeText(`npx jobjab-fhevm-examples ${selectedExampleKey} ./my-project`);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const { openChat, sendMessage } = useChat();
+  const { openChat } = useChat();
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       openChat(searchTerm);
@@ -263,7 +249,7 @@ function CategorySection({ category, examples }: { category: string, examples: a
                   <span className="px-2 py-1 rounded bg-zinc-900 border border-white/5 text-[10px] uppercase tracking-wider text-gray-400 font-mono">
                     {category}
                   </span>
-                  {example.tags.slice(0, 2).map((t) => (
+                  {example.tags.slice(0, 2).map((t: string) => (
                     <span key={t} className="px-2 py-1 rounded bg-zinc-900 border border-white/5 text-[10px] uppercase tracking-wider text-gray-500 font-mono">
                       {t}
                     </span>

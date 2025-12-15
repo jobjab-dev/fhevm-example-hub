@@ -68,7 +68,6 @@ export default function TypewriterSuggestions() {
 
 // Simplified version for direct embedding
 export function useTypewriter() {
-    const [text, setText] = useState("");
     const [index, setIndex] = useState(0);
     const [subIndex, setSubIndex] = useState(0);
     const [reverse, setReverse] = useState(false);
