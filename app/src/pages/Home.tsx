@@ -48,7 +48,7 @@ export default function Home() {
 
 
   const copyCommand = () => {
-    navigator.clipboard.writeText(`npx create-fhevm-example ${selectedExampleKey} ./${selectedExampleKey.split('/')[1] || selectedExampleKey}`);
+    navigator.clipboard.writeText(`npx jobjab-fhevm-examples ${selectedExampleKey} ./my-project`);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -63,7 +63,7 @@ export default function Home() {
   return (
     <div className="pb-20 relative z-10">
       {/* Hero Section */}
-      <section className="relative pt-24 pb-32 overflow-hidden">
+      <section className="relative pt-24 pb-0 overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-64 bg-yellow-500/10 blur-[120px] -z-10" />
 
         <div className="max-w-7xl mx-auto px-4 text-center">
@@ -96,25 +96,62 @@ export default function Home() {
             Clone, test, and deploy in seconds.
           </motion.p>
 
-          {/* Dynamic Command Bar */}
+          {/* Installation Section - Claude Code Style */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="max-w-xl mx-auto"
+            className="max-w-xl mx-auto space-y-4"
           >
-            <div className="bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-xl p-2 flex items-center gap-2 shadow-2xl ring-1 ring-white/5">
-              <div className="pl-4 pr-2 text-gray-500">
-                <Terminal size={20} />
-              </div>
-              <code className="flex-grow font-mono text-xs md:text-sm text-left text-gray-300 overflow-x-auto whitespace-nowrap scrollbar-hide py-2">
-                <span className="text-purple-400">npx</span> run create <span className="text-yellow-400">{selectedExampleKey}</span> ./my-repo
+            {/* Install Command */}
+            <div className="bg-zinc-900/80 border border-white/10 rounded-lg px-4 py-3 flex items-center justify-between">
+              <code className="font-mono text-sm">
+                <span className="text-purple-400">npm</span>{' '}
+                <span className="text-gray-300">install -g</span>{' '}
+                <span className="text-orange-400">jobjab-fhevm-examples</span>
               </code>
               <button
-                onClick={copyCommand}
-                className="p-2 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-white"
+                onClick={() => {
+                  navigator.clipboard.writeText('npm install -g jobjab-fhevm-examples');
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+                }}
+                className="p-1.5 hover:bg-white/10 rounded transition-colors text-gray-400 hover:text-white"
               >
-                {copied ? <Check size={20} className="text-green-400" /> : <Copy size={20} />}
+                {copied ? <Check size={16} className="text-green-400" /> : <Copy size={16} />}
+              </button>
+            </div>
+
+            {/* Requirements */}
+            <p className="text-sm text-gray-500">
+              Requires{' '}
+              <a
+                href="https://nodejs.org/en/download/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline hover:text-white transition-colors"
+              >
+                Node.js 18+
+              </a>
+            </p>
+
+            {/* Usage */}
+            <p className="text-white font-medium">Start using FHEVM Examples:</p>
+
+            {/* Usage Command */}
+            <div className="bg-zinc-900/80 border border-white/10 rounded-lg px-4 py-3 flex items-center justify-between">
+              <code className="font-mono text-sm">
+                <span className="text-white">fhevm-examples</span>
+              </code>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText('fhevm-examples');
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+                }}
+                className="p-1.5 hover:bg-white/10 rounded transition-colors text-gray-400 hover:text-white"
+              >
+                {copied ? <Check size={16} className="text-green-400" /> : <Copy size={16} />}
               </button>
             </div>
           </motion.div>

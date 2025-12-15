@@ -1,16 +1,71 @@
+# Dependencies
 node_modules/
-log/
+.pnpm-store/
+
+# Build outputs
 dist/
 build/
-cache
-coverage/
-deployments/
-tmp/
-.coverage_artifacts
-.coverage_cache
-.coverage_contracts
-.coverage_contracts
+*.tsbuildinfo
 
-.env
-validation_output/
+# Generated folders (created by CLI)
 generated/
+validation_output/
+
+# Logs
+log/
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE / Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Hardhat (in case of local testing)
+cache/
+artifacts/
+typechain/
+typechain-types/
+
+# App specific (Next.js)
+app/.next/
+app/out/
+app/node_modules/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Lock files (keep package-lock.json, ignore others if using npm)
+yarn.lock
+pnpm-lock.yaml

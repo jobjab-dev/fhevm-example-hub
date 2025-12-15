@@ -42,7 +42,7 @@ export default function Detail() {
   }
 
   const copyCommand = () => {
-    navigator.clipboard.writeText(`npx create-fhevm-example ${decodedKey} ./${decodedKey.split('/')[1] || decodedKey}`);
+    navigator.clipboard.writeText(`npx jobjab-fhevm-examples ${decodedKey} ./my-project`);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -84,7 +84,7 @@ export default function Detail() {
             </h3>
             <div className="bg-black/50 border border-white/5 rounded-lg p-3 relative group">
               <code className="font-mono text-sm text-gray-300 break-all block pr-8">
-                <span className="text-purple-400">npx</span> create-fhevm-example <span className="text-yellow-500">{decodedKey}</span> ./my-repo
+                <span className="text-purple-400">npx</span> jobjab-fhevm-examples <span className="text-yellow-500">{decodedKey}</span> ./my-project
               </code>
               <button
                 onClick={copyCommand}

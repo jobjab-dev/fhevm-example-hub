@@ -1,17 +1,30 @@
 {
-  "name": "fhevm-example-hub",
-  "version": "1.0.0",
-  "description": "Central hub for generating FHEVM example repositories",
+  "name": "jobjab-fhevm-examples",
+  "version": "1.0.2",
+  "description": "Central hub for generating FHEVM example repositories - Interactive CLI to scaffold production-ready FHEVM projects",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jobjab-dev/fhevm-example-hub.git"
+  },
+  "homepage": "https://github.com/jobjab-dev/fhevm-example-hub#readme",
+  "bugs": {
+    "url": "https://github.com/jobjab-dev/fhevm-example-hub/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "bin": {
     "fhevm-examples": "dist/src/cli/index.js"
   },
-  "main": "index.js",
+  "main": "dist/src/cli/index.js",
   "scripts": {
     "test": "echo \"See README.md for running tests on generated examples\" && exit 0",
     "clean": "rimraf dist",
+    "postinstall": "cd app && npm install",
     "prebuild": "npm run clean",
     "build": "tsc -p tsconfig.cli.json",
+    "prepublishOnly": "npm run build",
     "start": "node dist/src/cli/index.js",
     "create": "node --loader ts-node/esm scripts/create-fhevm-example.ts",
     "create:category": "node --loader ts-node/esm scripts/create-fhevm-category.ts",
@@ -21,6 +34,7 @@
     "lint": "echo \"No linting configured\" && exit 0",
     "update:deps": "node --loader ts-node/esm scripts/update-deps.ts",
     "sync:content": "node --loader ts-node/esm scripts/sync-content.ts",
+    "generate:ai-context": "node --loader ts-node/esm scripts/generate-ai-context.ts",
     "build:web": "cd app && npm run build",
     "dev:web": "cd app && npm run dev",
     "preview:web": "cd app && npm run preview",
@@ -31,7 +45,9 @@
     "dist",
     "examples",
     "example-catalog.json",
-    "docs"
+    "docs",
+    "fhevm-hardhat-template",
+    "scripts"
   ],
   "keywords": [
     "fhevm",
@@ -52,16 +68,12 @@
   },
   "dependencies": {
     "@clack/prompts": "^0.9.0",
-    "@google/genai": "^1.32.0",
-    "@google/generative-ai": "^0.24.1",
     "@types/figlet": "^1.7.0",
     "chalk": "^5.4.0",
     "commander": "^13.0.0",
     "execa": "^9.5.2",
     "figlet": "^1.9.4",
     "gradient-string": "^3.0.0",
-    "react-markdown": "^10.1.0",
-    "remark-gfm": "^4.0.1",
     "tiged": "^2.12.7"
   }
 }

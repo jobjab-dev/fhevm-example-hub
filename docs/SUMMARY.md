@@ -2,6 +2,10 @@
 
 * [Applications](chapters/applications.md)
   * [Blind Auction](examples/applications/blind-auction.md)
+  * [Confidential Voting](examples/applications/confidential-voting.md)
+  * [Private Age Verification](examples/applications/private-age-verification.md)
+  * [Private Crowdfunding](examples/applications/private-crowdfunding.md)
+  * [Rock Paper Scissors](examples/applications/rock-paper-scissors.md)
 * [Basic](chapters/basic.md)
   * [Encrypted Counter](examples/basic/fhe-counter.md)
 * [Concepts](chapters/concepts.md)

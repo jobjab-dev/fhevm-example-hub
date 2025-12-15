@@ -4,6 +4,7 @@
 > 
 > *Generate standalone, production-ready repositories for Zama's fhEVM in seconds.*
 
+[![npm version](https://img.shields.io/npm/v/jobjab-fhevm-examples.svg)](https://www.npmjs.com/package/jobjab-fhevm-examples)
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](LICENSE)
 [![FHEVM](https://img.shields.io/badge/FHEVM-Powered-orange)](https://github.com/zama-ai/fhevm)
 [![Zama](https://img.shields.io/badge/Built_for-Zama-yellow)](https://zama.ai)
@@ -14,27 +15,58 @@ The **FHEVM Example Hub** serves two main purposes:
 1.  **CLI Tool (`fhevm-examples`)**: An interactive tool to generate ready-to-use FHEVM projects instantly.
 2.  **Educational Monorepo**: A centralized repository containing categorized examples, security labs, and patterns for developers to study and contribute to.
 
-## 📦 For CLI Users
+## 📦 Quick Start
 
-If you just want to generate a project and get coding, use the CLI.
+Get started with FHEVM development in seconds!
 
-### Installation
-
-Install globally via npm:
+### Option 1: Use with npx (No installation required)
 
 ```bash
-npm install -g fhevm-examples
+npx jobjab-fhevm-examples
 ```
+
+### Option 2: Install Globally
+
+```bash
+npm install -g jobjab-fhevm-examples
+```
+
+Then run from anywhere:
 
 ### Usage
 
-Run the CLI from anywhere:
+**Interactive Mode:**
+
+Run without arguments to launch the menu:
 
 ```bash
 fhevm-examples
 ```
 
-Select an example from the interactive menu, and the CLI will download the template, inject the selected example code, and configure the project for you.
+**Direct Mode:**
+
+Generate a specific example directly:
+
+```bash
+# Syntax: fhevm-examples <example-name> [output-dir]
+fhevm-examples fhe-counter ./my-project
+```
+
+**Using with npx (No install required):**
+
+```bash
+npx jobjab-fhevm-examples fhe-counter ./my-project
+```
+
+**List of keys:**
+- `fhe-counter`, `encrypt-single-value`, `blind-auction`, etc. (See catalog)
+
+### What happens next?
+
+1. The CLI downloads the template
+2. Injects the selected example code
+3. Configures the project
+4. Run `npm install && npm run test` to get started!
 
 **Features:**
 - 📂 **Categorized Selection**: browse Basic, Applications, Concepts, Labs, etc.
@@ -59,6 +91,9 @@ cd fhevm-example-hub
 ```bash
 npm install
 ```
+
+> **Note:** This command will automatically install dependencies for both the CLI (root) and the Web Catalog (`app/`).
+
 
 ### 3. Build the CLI
 
@@ -155,6 +190,10 @@ For detailed documentation, patterns, and concepts, please visit the [**Document
 | Example | Description |
 |---------|-------------|
 | `blind-auction` | Sealed-bid auction where bids remain confidential until the end. |
+| `confidential-voting` | Secret ballot voting using FHE for encrypted vote tallying. |
+| `rock-paper-scissors` | Two-player encrypted Rock Paper Scissors game. |
+| `private-age-verification` | Verify age > 18 without revealing specific birth date. |
+| `private-crowdfunding` | Confidential fundraising with encrypted targets and contributions. |
 
 ## 🤝 Contributing
 

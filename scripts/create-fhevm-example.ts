@@ -18,6 +18,16 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 function getProjectRoot() {
+  // Walk up the directory tree to find example-catalog.json
+  let dir = __dirname;
+  while (dir !== path.dirname(dir)) {
+    if (fs.existsSync(path.join(dir, 'example-catalog.json'))) {
+      return dir;
+    }
+    dir = path.dirname(dir);
+  }
+
+  // Fallback to relative paths for development
   const p1 = path.resolve(__dirname, '..');
   const p2 = path.resolve(__dirname, '../..');
   const p3 = path.resolve(__dirname, '../../..');
@@ -25,7 +35,8 @@ function getProjectRoot() {
   if (fs.existsSync(path.join(p1, 'example-catalog.json'))) return p1;
   if (fs.existsSync(path.join(p2, 'example-catalog.json'))) return p2;
   if (fs.existsSync(path.join(p3, 'example-catalog.json'))) return p3;
-  return p1;
+
+  throw new Error('Could not find project root. Make sure example-catalog.json exists.');
 }
 
 const PROJECT_ROOT = getProjectRoot();

@@ -1,0 +1,139 @@
+// SPDX-License-Identifier: BSD-3-Clause-Clear
+pragma solidity ^0.8.24;
+
+import "@fhevm/solidity/lib/FHE.sol";
+import "encrypted-types/EncryptedTypes.sol";
+import { ZamaEthereumConfig } from "@fhevm/solidity/config/ZamaConfig.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract ConfidentialVoting is Ownable, ZamaEthereumConfig {
+    struct Proposal {
+        string description;
+        uint256 endTime;
+        euint64 yesCount; // Encrypted count of YES votes
+        euint64 noCount;  // Encrypted count of NO votes
+        bool exists;
+        bool revealed;
+        uint64 decryptedYes;
+        uint64 decryptedNo;
+    }
+
+    mapping(uint256 => Proposal) public proposals;
+    uint256 public proposalCount;
+
+    // track if user has voted on a proposal: proposalId => user => bool
+    mapping(uint256 => mapping(address => bool)) public hasVoted;
+
+    event ProposalCreated(uint256 indexed proposalId, string description, uint256 endTime);
+    event VoteCast(uint256 indexed proposalId, address indexed voter);
+    event RevealRequested(uint256 indexed proposalId);
+    event ResultRevealed(uint256 indexed proposalId, uint64 yesVotes, uint64 noVotes);
+
+    constructor() Ownable(msg.sender) {}
+
+    function createProposal(string memory _description, uint256 _duration) public onlyOwner {
+        proposalCount++;
+        Proposal storage p = proposals[proposalCount];
+        p.description = _description;
+        p.endTime = block.timestamp + _duration;
+        p.exists = true;
+        
+        // Initialize encrypted counters to 0
+        p.yesCount = FHE.asEuint64(0);
+        p.noCount = FHE.asEuint64(0);
+
+        emit ProposalCreated(proposalCount, _description, p.endTime);
+    }
+
+    function vote(uint256 _proposalId, externalEbool _encryptedVote, bytes calldata _inputProof) public {
+        Proposal storage p = proposals[_proposalId];
+        require(p.exists, "Proposal does not exist");
+        require(block.timestamp < p.endTime, "Voting period has ended");
+        require(!hasVoted[_proposalId][msg.sender], "You have already voted");
+
+        // Validate the encrypted input is from msg.sender and bound to this contract
+        ebool userVote = FHE.fromExternal(_encryptedVote, _inputProof);
+        FHE.allowThis(userVote); 
+        // Note: verifyVote isn't a standard FHE function in some versions, usually we use FHE.asEbool with proof or just rely on modifier.
+        // Let's stick to standard pattern: simply using the input.
+        
+        // Standard pattern: 
+        // ebool userVote = FHE.asEbool(_encryptedVote, _inputProof); // verification happens here
+        
+        // However, in latest fhevm, we usually pass the raw ciphertext handles or bytes.
+        // Let's assume input is ebool directly from params which usually implies prior sanitization if strictly typed, 
+        // but typically in these examples we pass ciphertext and proof.
+        
+        // Actually, for this example hub which uses latest fhevm, the best practice is:
+        // Function takes `ebool` and `bytes inputProof`.
+        // We ensure `ebool` is valid.
+        
+        // Check input proof
+        // Note: TFHE.allow is not needed for inputs processed immediately.
+        
+        // Convert boolean vote to integer for counting
+        // If vote is true (YES), add 1 to yesCount, 0 to noCount
+        // If vote is false (NO), add 0 to yesCount, 1 to noCount
+        
+        euint64 castYes = FHE.select(userVote, FHE.asEuint64(1), FHE.asEuint64(0));
+        euint64 castNo = FHE.select(userVote, FHE.asEuint64(0), FHE.asEuint64(1));
+        
+        // Update proposal counters
+        p.yesCount = FHE.add(p.yesCount, castYes);
+        p.noCount = FHE.add(p.noCount, castNo);
+        FHE.allowThis(p.yesCount);
+        FHE.allowThis(p.noCount);
+        
+        // Mark as voted
+        hasVoted[_proposalId][msg.sender] = true;
+        
+        // We must allow the contract to operate on these new handles? 
+        // No, FHE.add automatically handles it.
+        // But we might want to allow the owner or everyone to decrypt the result later.
+        // For now, we keep them internal until reveal.
+        
+        // To allow anyone to decrypt the result later, we will use FHE.allow in revealResult.
+        
+        emit VoteCast(_proposalId, msg.sender);
+    }
+
+    function revealResult(uint256 _proposalId) public {
+        Proposal storage p = proposals[_proposalId];
+        require(p.exists, "Proposal does not exist");
+        require(block.timestamp >= p.endTime, "Voting period not ended");
+        require(!p.revealed, "Result already revealed");
+
+        FHE.makePubliclyDecryptable(p.yesCount);
+        FHE.makePubliclyDecryptable(p.noCount);
+
+        emit RevealRequested(_proposalId);
+    }
+
+    function submitResult(
+        uint256 _proposalId,
+        bytes memory yesClear,
+        bytes memory yesProof,
+        bytes memory noClear,
+        bytes memory noProof
+    ) public {
+        Proposal storage p = proposals[_proposalId];
+        require(p.exists, "Proposal does not exist");
+        require(!p.revealed, "Result already revealed");
+        
+        // Verify Yes
+        bytes32[] memory handlesYes = new bytes32[](1);
+        handlesYes[0] = FHE.toBytes32(p.yesCount);
+        FHE.checkSignatures(handlesYes, yesClear, yesProof);
+        p.decryptedYes = abi.decode(yesClear, (uint64));
+
+        // Verify No
+        bytes32[] memory handlesNo = new bytes32[](1);
+        handlesNo[0] = FHE.toBytes32(p.noCount);
+        FHE.checkSignatures(handlesNo, noClear, noProof);
+        p.decryptedNo = abi.decode(noClear, (uint64));
+
+        p.revealed = true;
+
+        emit ResultRevealed(_proposalId, p.decryptedYes, p.decryptedNo);
+    }
+}

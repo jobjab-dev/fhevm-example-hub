@@ -14,9 +14,19 @@ const __dirname = path.dirname(__filename);
 // Helper to get package version
 function getPackageVersion() {
     try {
-        const pkgPath = path.join(__dirname, '../../../package.json');
-        const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
-        return pkg.version;
+        // Walk up the directory tree to find package.json
+        let dir = __dirname;
+        while (dir !== path.dirname(dir)) {
+            const pkgPath = path.join(dir, 'package.json');
+            if (fs.existsSync(pkgPath)) {
+                const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
+                if (pkg.name === 'jobjab-fhevm-examples') {
+                    return pkg.version;
+                }
+            }
+            dir = path.dirname(dir);
+        }
+        return 'unknown';
     } catch {
         return 'unknown';
     }
@@ -34,6 +44,42 @@ export async function main() {
     // Display banner box
     const width = 60;
     const border = '═'.repeat(width);
+
+    // Check for arguments (Non-interactive mode)
+    const args = process.argv.slice(2);
+    if (args.length > 0) {
+        // Handle help flag
+        if (args[0] === '--help' || args[0] === '-h') {
+            console.log(chalk.cyan(`
+FHEVM Example Generator v${version}
+`));
+            console.log(`Usage: 
+  ${chalk.green('fhevm-examples')}                                 (Interactive Mode)
+  ${chalk.green('fhevm-examples')} <example-name> [output-dir]     (Direct Mode)
+  
+Arguments:
+  ${chalk.yellow('example-name')}    Name of the example to generate (e.g., fhe-counter)
+  ${chalk.yellow('output-dir')}      Optional output directory (default: ./fhevm-example-<name>)
+            `);
+            process.exit(0);
+        }
+
+        // Direct create mode
+        const exampleName = args[0];
+        const outputDir = args[1] || path.join(process.cwd(), `fhevm-example-${exampleName}`);
+
+        console.log(chalk.gray(`\n  ╔${border}╗`));
+        console.log(chalk.gray(`  ║`) + `  FHEVM CLI v${version}`.padEnd(width + 10) + chalk.gray(`   ║`));
+        console.log(chalk.gray(`  ╚${border}╝\n`));
+
+        try {
+            await createExample(exampleName, outputDir);
+            process.exit(0);
+        } catch (e: any) {
+            console.error(chalk.red(`Error: ${e.message}`));
+            process.exit(1);
+        }
+    }
 
     console.log(chalk.gray(`\n  ╔${border}╗`));
     console.log(chalk.gray(`  ║`) + `  Welcome to the ${fhevmGradient('FHEVM CLI')} research preview!`.padEnd(width + 10) + chalk.gray(`   ║`)); // Padding adjustment for ANSI codes

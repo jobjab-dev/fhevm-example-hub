@@ -1,4 +1,40 @@
 {
+  "rock-paper-scissors": {
+    "contract": "examples/contracts/applications/RockPaperScissors.sol",
+    "test": "examples/test/applications/RockPaperScissors.ts",
+    "description": "Two-player encrypted Rock Paper Scissors game",
+    "category": "applications",
+    "title": "Rock Paper Scissors",
+    "tags": [
+      "applications",
+      "game",
+      "logic"
+    ]
+  },
+  "private-age-verification": {
+    "contract": "examples/contracts/applications/PrivateAgeVerification.sol",
+    "test": "examples/test/applications/PrivateAgeVerification.ts",
+    "description": "Verify age without revealing birthdate using FHE",
+    "category": "applications",
+    "title": "Private Age Verification",
+    "tags": [
+      "applications",
+      "identity",
+      "compliance"
+    ]
+  },
+  "private-crowdfunding": {
+    "contract": "examples/contracts/applications/PrivateCrowdfunding.sol",
+    "test": "examples/test/applications/PrivateCrowdfunding.ts",
+    "description": "Confidential crowdfunding campaign with encrypted targets and pledges",
+    "category": "applications",
+    "title": "Private Crowdfunding",
+    "tags": [
+      "applications",
+      "defi",
+      "finance"
+    ]
+  },
   "fhe-counter": {
     "contract": "examples/contracts/basic/FHECounter.sol",
     "test": "examples/test/basic/FHECounter.ts",
@@ -153,6 +189,21 @@
       "advanced"
     ],
     "extraDoc": "\n## 📊 Lifecycle Visualization\n\n```mermaid\ngraph TD\n  A[User encrypts value] -->|Generate| B[Handle h1]\n  B -->|Tx Call| C[Contract receives h1]\n  C -->|FHE Op| D[New Handle h2 Created]\n  D -->|Store| E[State Variable]\n  E -->|FHE.allow| F[Re-encryption for User]\n```\n"
+  },
+  "confidential-voting": {
+    "contract": "examples/contracts/applications/ConfidentialVoting.sol",
+    "test": "examples/test/applications/ConfidentialVoting.ts",
+    "description": "Secret ballot voting where individual votes remain encrypted until the end",
+    "category": "applications",
+    "title": "Confidential Voting",
+    "tags": [
+      "applications",
+      "dao",
+      "voting"
+    ],
+    "extraDependencies": {
+      "@openzeppelin/contracts": "^5.0.2"
+    }
   },
   "blind-auction": {
     "contract": "examples/contracts/auctions/BlindAuction.sol",
