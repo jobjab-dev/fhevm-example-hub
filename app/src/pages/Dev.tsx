@@ -1,15 +1,26 @@
-import { Terminal, CheckCircle, AlertTriangle, RefreshCw, Box, Database, Activity, ExternalLink, Github, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Terminal, CheckCircle, RefreshCw, Box, Database, Activity, ExternalLink, Github, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 import catalogData from '../data/catalog.json';
 
-const EXAMPLES = Object.entries(catalogData).map(([key, data]) => ({ key, ...data }));
+interface CatalogEntry {
+  title: string;
+  description: string;
+  category: string;
+  tags: string[];
+  contract: string;
+  test: string;
+}
+
+const catalog = catalogData as Record<string, CatalogEntry>;
+const EXAMPLES = Object.entries(catalog).map(([key, data]) => ({ key, ...data }));
 
 export default function Dev() {
+  const categories = new Set(EXAMPLES.map(e => e.category));
   const stats = {
     total: EXAMPLES.length,
-    stable: EXAMPLES.filter(e => e.status === 'stable').length,
-    experimental: EXAMPLES.filter(e => e.status === 'experimental').length,
-    categories: new Set(EXAMPLES.map(e => e.category)).size
+    applications: EXAMPLES.filter(e => e.category === 'applications').length,
+    concepts: EXAMPLES.filter(e => ['concepts', 'labs'].includes(e.category)).length,
+    categories: categories.size
   };
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -53,17 +64,17 @@ export default function Dev() {
         <div className="bg-zinc-900/50 backdrop-blur-sm p-4 rounded-lg border border-white/10">
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2 bg-green-500/10 rounded text-green-500"><Activity size={18} /></div>
-            <span className="text-xs font-mono text-gray-500 uppercase">Stable</span>
+            <span className="text-xs font-mono text-gray-500 uppercase">Applications</span>
           </div>
-          <div className="text-2xl font-bold text-green-400 font-mono">{stats.stable}</div>
+          <div className="text-2xl font-bold text-green-400 font-mono">{stats.applications}</div>
         </div>
 
         <div className="bg-zinc-900/50 backdrop-blur-sm p-4 rounded-lg border border-white/10">
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-yellow-500/10 rounded text-yellow-500"><AlertTriangle size={18} /></div>
-            <span className="text-xs font-mono text-gray-500 uppercase">Experimental</span>
+            <div className="p-2 bg-purple-500/10 rounded text-purple-500"><Terminal size={18} /></div>
+            <span className="text-xs font-mono text-gray-500 uppercase">Concepts & Labs</span>
           </div>
-          <div className="text-2xl font-bold text-yellow-400 font-mono">{stats.experimental}</div>
+          <div className="text-2xl font-bold text-purple-400 font-mono">{stats.concepts}</div>
         </div>
 
         <div className="bg-zinc-900/50 backdrop-blur-sm p-4 rounded-lg border border-white/10">
@@ -116,24 +127,21 @@ export default function Dev() {
           <div className="overflow-x-auto flex-grow scrollbar-hide">
             <table className="w-full text-sm text-left">
               <thead>
-                <tr className="text-gray-500 border-b border-white/10">
+                <tr className="text-left text-gray-500">
                   <th className="pb-3 pl-2 font-mono text-xs uppercase tracking-wider">Example</th>
                   <th className="pb-3 font-mono text-xs uppercase tracking-wider">Category</th>
-                  <th className="pb-3 font-mono text-xs uppercase tracking-wider">Status</th>
+                  <th className="pb-3 font-mono text-xs uppercase tracking-wider">Title</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
                 {currentExamples.map(ex => (
                   <tr key={ex.key} className="group hover:bg-white/5 transition-colors">
-                    <td className="py-3 pl-2 font-mono text-gray-300 text-xs">{ex.key.split('/').pop()}</td>
+                    <td className="py-3 pl-2 font-mono text-gray-300 text-xs">{ex.key}</td>
                     <td className="py-3 text-gray-500 capitalize text-xs">{ex.category}</td>
                     <td className="py-3">
-                      <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] uppercase tracking-wider border font-mono ${ex.status === 'stable'
-                        ? 'bg-green-500/10 text-green-400 border-green-500/20'
-                        : 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
-                        }`}>
-                        {ex.status === 'stable' ? <CheckCircle size={10} /> : <AlertTriangle size={10} />}
-                        {ex.status}
+                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] uppercase tracking-wider border font-mono bg-green-500/10 text-green-400 border-green-500/20">
+                        <CheckCircle size={10} />
+                        {ex.title}
                       </span>
                     </td>
                   </tr>

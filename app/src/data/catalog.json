@@ -10,13 +10,12 @@
       "game",
       "logic"
     ],
-    "level": "intermediate",
-    "status": "stable",
-    "networks": [
-      "local",
-      "sepolia"
-    ],
-    "docSlug": "applications/rock-paper-scissors"
+    "extraDoc": "\n## 🎮 How It Works\n\nThis game uses FHE to keep player moves secret until both players have committed:\n\n1. **Player 1 creates a game** with an encrypted move (Rock=1, Paper=2, Scissors=3)\n2. **Player 2 joins** with their own encrypted move\n3. **Reveal phase** determines winner using encrypted comparisons\n\n## 📊 Game Flow\n\n```mermaid\nsequenceDiagram\n    participant P1 as Player 1\n    participant C as Contract\n    participant P2 as Player 2\n    P1->>C: createGame(encryptedMove)\n    Note over C: Move stored encrypted\n    P2->>C: joinGame(gameId, encryptedMove)\n    Note over C: Both moves encrypted\n    P1->>C: revealGame(gameId)\n    Note over C: FHE.select determines winner\n    C-->>P1: Result decrypted for both\n    C-->>P2: Result decrypted for both\n```\n",
+    "keyConcepts": [
+      "FHE.select for conditional logic",
+      "FHE.eq/and/or for encrypted comparisons",
+      "Multi-party encrypted state"
+    ]
   },
   "private-age-verification": {
     "contract": "examples/contracts/applications/PrivateAgeVerification.sol",
@@ -29,13 +28,12 @@
       "identity",
       "compliance"
     ],
-    "level": "intermediate",
-    "status": "stable",
-    "networks": [
-      "local",
-      "sepolia"
-    ],
-    "docSlug": "applications/private-age-verification"
+    "extraDoc": "\n## 🔐 Privacy-Preserving Identity\n\nThis example shows how to prove statements about encrypted data without revealing the underlying value.\n\n**Use Case:** Prove you are over 18 without revealing your exact birthdate.\n\n## 📊 Verification Flow\n\n```mermaid\nsequenceDiagram\n    participant U as User\n    participant C as Contract\n    participant V as Verifier\n    U->>C: registerBirthYear(encryptedYear)\n    Note over C: Birth year stored encrypted\n    U->>C: proveAgeTo(verifier, currentYear, minAge)\n    Note over C: FHE.ge(limitYear, birthYear)\n    C-->>V: ebool result allowed for verifier\n    V->>V: Decrypt result (true/false)\n```\n\n## 💡 Key Insight\n\nThe verifier only learns **true or false** - never the actual birth year.\n",
+    "keyConcepts": [
+      "FHE.ge for encrypted comparisons",
+      "FHE.allow for selective disclosure",
+      "Zero-knowledge-like proofs with FHE"
+    ]
   },
   "private-crowdfunding": {
     "contract": "examples/contracts/applications/PrivateCrowdfunding.sol",
@@ -48,33 +46,12 @@
       "defi",
       "finance"
     ],
-    "level": "advanced",
-    "status": "stable",
-    "networks": [
-      "local",
-      "sepolia"
-    ],
-    "docSlug": "applications/private-crowdfunding"
-  },
-  "confidential-voting": {
-    "contract": "examples/contracts/applications/ConfidentialVoting.sol",
-    "test": "examples/test/applications/ConfidentialVoting.ts",
-    "description": "Secret ballot voting where individual votes remain encrypted until the end",
-    "category": "applications",
-    "title": "Confidential Voting",
-    "tags": [
-      "applications",
-      "dao",
-      "voting"
-    ],
-    "level": "advanced",
-    "status": "stable",
-    "networks": [
-      "local",
-      "sepolia"
-    ],
-    "docSlug": "applications/confidential-voting",
-    "highlight": true
+    "extraDoc": "\n## 💰 Confidential Fundraising\n\nKeep campaign targets and individual contributions private to:\n- Prevent front-running or manipulation\n- Protect contributor privacy\n- Allow fair participation without social pressure\n\n## 📊 Campaign Flow\n\n```mermaid\nstateDiagram-v2\n    [*] --> Active: createCampaign(encTarget)\n    Active --> Active: pledge(encAmount)\n    Active --> Finalized: deadline reached\n    Finalized --> Success: totalPledged >= target\n    Finalized --> Failed: totalPledged < target\n```\n",
+    "keyConcepts": [
+      "FHE.add for encrypted accumulation",
+      "FHE.ge for threshold checking",
+      "Time-locked encrypted state"
+    ]
   },
   "fhe-counter": {
     "contract": "examples/contracts/basic/FHECounter.sol",
@@ -87,13 +64,12 @@
       "counter",
       "beginner"
     ],
-    "level": "beginner",
-    "status": "stable",
-    "networks": [
-      "local",
-      "sepolia"
-    ],
-    "docSlug": "basic/fhe-counter"
+    "extraDoc": "\n## 🎯 The Simplest FHE Example\n\nThis counter demonstrates the fundamental FHE operations:\n\n```mermaid\nflowchart LR\n    A[Encrypt Value] --> B[Send to Contract]\n    B --> C[FHE.add/sub]\n    C --> D[Encrypted Result]\n    D --> E[User Decrypts]\n```\n\n## 💡 What You'll Learn\n\n- How to receive encrypted inputs with proofs\n- How to perform arithmetic on encrypted values\n- How to grant decryption permissions with FHE.allow\n",
+    "keyConcepts": [
+      "FHE.fromExternal for input validation",
+      "FHE.add/sub arithmetic",
+      "FHE.allow & FHE.allowThis"
+    ]
   },
   "encrypt-single-value": {
     "contract": "examples/contracts/basic/encrypt/EncryptSingleValue.sol",
@@ -105,13 +81,12 @@
       "encryption",
       "beginner"
     ],
-    "level": "beginner",
-    "status": "stable",
-    "networks": [
-      "local",
-      "sepolia"
-    ],
-    "docSlug": "encryption/encrypt-single-value"
+    "extraDoc": "\n## 🔐 Understanding Encryption Flow\n\n```mermaid\nflowchart TD\n    A[Client: Generate Encrypted Input] --> B[Bound to Contract + User]\n    B --> C[Send TX with handle + proof]\n    C --> D[Contract: FHE.fromExternal]\n    D --> E{Proof Valid?}\n    E -->|Yes| F[Store euint handle]\n    E -->|No| G[Revert]\n```\n\n## ⚠️ Common Pitfall\n\nIf the transaction sender doesn't match the proof signer, it will **REVERT**.\n",
+    "keyConcepts": [
+      "Client-side encryption with fhevm.js",
+      "Input proofs and binding",
+      "FHE.fromExternal validation"
+    ]
   },
   "encrypt-multiple-values": {
     "contract": "examples/contracts/basic/encrypt/EncryptMultipleValues.sol",
@@ -123,13 +98,12 @@
       "encryption",
       "beginner"
     ],
-    "level": "beginner",
-    "status": "stable",
-    "networks": [
-      "local",
-      "sepolia"
-    ],
-    "docSlug": "encryption/encrypt-multiple-values"
+    "extraDoc": "\n## 📦 Batching Encrypted Inputs\n\nYou can encrypt multiple values in a single proof for efficiency:\n\n```mermaid\nflowchart LR\n    A[addBool] --> D[Single Proof]\n    B[add32] --> D\n    C[addAddress] --> D\n    D --> E[3 Handles + 1 Proof]\n```\n",
+    "keyConcepts": [
+      "Batched encrypted inputs",
+      "Multiple FHE types (ebool, euint32, eaddress)",
+      "Single proof for multiple values"
+    ]
   },
   "user-decrypt-single-value": {
     "contract": "examples/contracts/basic/decrypt/UserDecryptSingleValue.sol",
@@ -142,13 +116,12 @@
       "user",
       "intermediate"
     ],
-    "level": "intermediate",
-    "status": "stable",
-    "networks": [
-      "local",
-      "sepolia"
-    ],
-    "docSlug": "decryption/user-decrypt-single-value"
+    "extraDoc": "\n## 🔓 User Decryption (Re-encryption)\n\nUser decryption allows a specific user to decrypt a value off-chain:\n\n```mermaid\nsequenceDiagram\n    participant U as User\n    participant C as Contract\n    participant R as Relayer/Gateway\n    U->>C: Call function\n    C->>C: FHE.allow(handle, user)\n    U->>R: Request re-encryption\n    R-->>U: Decrypted value\n```\n\n## ⚠️ Required: FHE.allow\n\nIf you forget `FHE.allow(handle, user)`, decryption will **FAIL**.\n",
+    "keyConcepts": [
+      "FHE.allow for user permissions",
+      "Re-encryption via Gateway",
+      "Selective disclosure"
+    ]
   },
   "user-decrypt-multiple-values": {
     "contract": "examples/contracts/basic/decrypt/UserDecryptMultipleValues.sol",
@@ -161,13 +134,11 @@
       "user",
       "intermediate"
     ],
-    "level": "intermediate",
-    "status": "stable",
-    "networks": [
-      "local",
-      "sepolia"
-    ],
-    "docSlug": "decryption/user-decrypt-multiple-values"
+    "keyConcepts": [
+      "Batch user decryption",
+      "EIP-712 signatures for auth",
+      "Multiple handle permissions"
+    ]
   },
   "public-decrypt-single-value": {
     "contract": "examples/contracts/basic/decrypt/PublicDecryptSingleValue.sol",
@@ -180,13 +151,12 @@
       "public",
       "intermediate"
     ],
-    "level": "intermediate",
-    "status": "stable",
-    "networks": [
-      "local",
-      "sepolia"
-    ],
-    "docSlug": "decryption/public-decrypt-single-value"
+    "extraDoc": "\n## 🌍 Public Decryption\n\nMake encrypted values publicly visible (e.g., game results, vote tallies):\n\n```mermaid\nsequenceDiagram\n    participant C as Contract\n    participant G as Gateway\n    participant A as Anyone\n    C->>C: FHE.makePubliclyDecryptable(handle)\n    C->>G: Request decryption\n    G-->>C: Callback with clear value\n    A->>C: Read public result\n```\n",
+    "keyConcepts": [
+      "FHE.makePubliclyDecryptable",
+      "Gateway callbacks",
+      "Two-step reveal pattern"
+    ]
   },
   "public-decrypt-multiple-values": {
     "contract": "examples/contracts/basic/decrypt/PublicDecryptMultipleValues.sol",
@@ -199,13 +169,11 @@
       "public",
       "intermediate"
     ],
-    "level": "intermediate",
-    "status": "stable",
-    "networks": [
-      "local",
-      "sepolia"
-    ],
-    "docSlug": "decryption/public-decrypt-multiple-values"
+    "keyConcepts": [
+      "Batch public decryption",
+      "Multiple callbacks",
+      "Atomic reveal patterns"
+    ]
   },
   "fhe-operations": {
     "contract": "examples/contracts/basic/fhe-operations/FHEOperations.sol",
@@ -218,13 +186,12 @@
       "math",
       "beginner"
     ],
-    "level": "beginner",
-    "status": "stable",
-    "networks": [
-      "local",
-      "sepolia"
-    ],
-    "docSlug": "operations/fhe-operations"
+    "extraDoc": "\n## ➕ Arithmetic on Encrypted Data\n\n| Operation | Function | Notes |\n|-----------|----------|-------|\n| Add | `FHE.add(a, b)` | Wraps on overflow |\n| Subtract | `FHE.sub(a, b)` | Wraps on underflow |\n| Multiply | `FHE.mul(a, b)` | Watch for overflow |\n| Divide | `FHE.div(a, b)` | b must be non-zero |\n\n## ⚠️ Overflow Behavior\n\nFHE arithmetic **wraps around** like Solidity unchecked:\n- `255 + 1 = 0` (for euint8)\n- `0 - 1 = 255` (for euint8)\n",
+    "keyConcepts": [
+      "FHE.add/sub/mul/div",
+      "Overflow/underflow behavior",
+      "Type-specific operations"
+    ]
   },
   "fhe-if-then-else": {
     "contract": "examples/contracts/basic/fhe-operations/FHEIfThenElse.sol",
@@ -237,13 +204,12 @@
       "logic",
       "intermediate"
     ],
-    "level": "intermediate",
-    "status": "stable",
-    "networks": [
-      "local",
-      "sepolia"
-    ],
-    "docSlug": "operations/fhe-if-then-else"
+    "extraDoc": "\n## 🔀 Encrypted Branching with FHE.select\n\nSince you can't use `if` statements on encrypted booleans, use `FHE.select`:\n\n```solidity\n// Instead of:\nif (encryptedCondition) { result = a; } else { result = b; }\n\n// Use:\nresult = FHE.select(encryptedCondition, a, b);\n```\n\n```mermaid\nflowchart LR\n    A[ebool condition] --> B{FHE.select}\n    C[euint ifTrue] --> B\n    D[euint ifFalse] --> B\n    B --> E[euint result]\n```\n",
+    "keyConcepts": [
+      "FHE.select for branching",
+      "Cannot use if on ebool",
+      "Encrypted multiplexer pattern"
+    ]
   },
   "access-control": {
     "contract": "examples/contracts/access-control/AccessControlExample.sol",
@@ -256,13 +222,12 @@
       "security",
       "intermediate"
     ],
-    "level": "intermediate",
-    "status": "stable",
-    "networks": [
-      "local",
-      "sepolia"
-    ],
-    "docSlug": "concepts/access-control"
+    "extraDoc": "\n## 🔐 Permission System\n\n| Function | Scope | Use Case |\n|----------|-------|----------|\n| `FHE.allowThis(h)` | Contract | Let contract use handle |\n| `FHE.allow(h, addr)` | Persistent | Let user decrypt |\n| `FHE.allowTransient(h, addr)` | This TX | Temporary access |\n\n```mermaid\nflowchart TD\n    A[Handle Created] --> B{Who needs access?}\n    B -->|Contract| C[FHE.allowThis]\n    B -->|User| D[FHE.allow]\n    B -->|Temp| E[FHE.allowTransient]\n```\n",
+    "keyConcepts": [
+      "ACL (Access Control List)",
+      "FHE.allow vs FHE.allowTransient",
+      "Permission hierarchy"
+    ]
   },
   "input-proofs": {
     "contract": "examples/contracts/input-proofs/InputProofExample.sol",
@@ -275,13 +240,12 @@
       "security",
       "advanced"
     ],
-    "level": "advanced",
-    "status": "stable",
-    "networks": [
-      "local",
-      "sepolia"
-    ],
-    "docSlug": "concepts/input-proofs"
+    "extraDoc": "\n## 🛡️ Why Input Proofs Matter\n\nInput proofs prevent **ciphertext mauling attacks**:\n\n```mermaid\nflowchart TD\n    A[Attacker sees Alice's ciphertext] --> B{Try to use it?}\n    B -->|Without proof| C[❌ Rejected]\n    B -->|With Alice's proof| D[❌ Signature mismatch]\n    B -->|With own proof| E[❌ Different ciphertext]\n```\n\n## 🔑 The Proof Binds:\n\n1. **Ciphertext** to **Contract Address**\n2. **Ciphertext** to **Sender Address**\n",
+    "keyConcepts": [
+      "FHE.fromExternal validation",
+      "Proof binding mechanism",
+      "Anti-mauling protection"
+    ]
   },
   "anti-patterns": {
     "contract": "examples/contracts/anti-patterns/AntiPatternExample.sol",
@@ -294,12 +258,12 @@
       "security",
       "best-practices"
     ],
-    "level": "intermediate",
-    "status": "stable",
-    "networks": [
-      "local"
-    ],
-    "docSlug": "concepts/anti-patterns"
+    "extraDoc": "\n## ❌ Common Mistakes\n\n### 1. Missing FHE.allowThis\n```solidity\n// ❌ BAD: Contract can't use this handle later\n_value = FHE.fromExternal(input, proof);\n\n// ✅ GOOD: Contract has permission\n_value = FHE.fromExternal(input, proof);\nFHE.allowThis(_value);\n```\n\n### 2. Trying to decrypt in view functions\n```solidity\n// ❌ IMPOSSIBLE: Can't decrypt synchronously\nfunction getBalance() view returns (uint64) {\n    return decrypt(_balance); // Will fail!\n}\n```\n",
+    "keyConcepts": [
+      "Always call FHE.allowThis",
+      "View functions return handles only",
+      "Two-step decryption pattern"
+    ]
   },
   "handles": {
     "contract": "examples/contracts/handles/HandleExample.sol",
@@ -312,14 +276,33 @@
       "core",
       "advanced"
     ],
-    "level": "advanced",
-    "status": "stable",
-    "networks": [
-      "local",
-      "sepolia"
+    "extraDoc": "\n## 📊 What is a Handle?\n\nA **handle** is a 256-bit identifier pointing to encrypted data in the FHE coprocessor.\n\n```mermaid\nflowchart LR\n    A[euint32] -->|unwrap| B[bytes32 handle]\n    B -->|points to| C[Encrypted Data in Coprocessor]\n```\n\n## 🔄 Handle Lifecycle\n\n```mermaid\nstateDiagram-v2\n    [*] --> Created: FHE.fromExternal / FHE.asEuint\n    Created --> Used: FHE operations\n    Used --> NewHandle: Result of operation\n    NewHandle --> Stored: Save to state\n    Stored --> Allowed: FHE.allow/allowThis\n    Allowed --> Decrypted: User/Public decrypt\n```\n\n## 💡 Key Insight\n\nEvery FHE operation creates a **NEW handle**. The original handle remains unchanged.\n",
+    "keyConcepts": [
+      "Handles are pointers not values",
+      "Operations create new handles",
+      "Handle unwrapping"
+    ]
+  },
+  "confidential-voting": {
+    "contract": "examples/contracts/applications/ConfidentialVoting.sol",
+    "test": "examples/test/applications/ConfidentialVoting.ts",
+    "description": "Secret ballot voting where individual votes remain encrypted until the end",
+    "category": "applications",
+    "title": "Confidential Voting",
+    "tags": [
+      "applications",
+      "dao",
+      "voting"
     ],
-    "docSlug": "concepts/handles",
-    "extraDoc": "\n## 📊 Lifecycle Visualization\n\n```mermaid\ngraph TD\n  A[User encrypts value] -->|Generate| B[Handle h1]\n  B -->|Tx Call| C[Contract receives h1]\n  C -->|FHE Op| D[New Handle h2 Created]\n  D -->|Store| E[State Variable]\n  E -->|FHE.allow| F[Re-encryption for User]\n```\n"
+    "extraDependencies": {
+      "@openzeppelin/contracts": "^5.0.2"
+    },
+    "extraDoc": "\n## 🗳️ Secret Ballot Voting\n\nVotes remain encrypted until the voting period ends:\n\n```mermaid\nsequenceDiagram\n    participant V as Voter\n    participant C as Contract\n    participant G as Gateway\n    V->>C: vote(encryptedBool)\n    Note over C: yesCount += select(vote, 1, 0)\n    Note over C: noCount += select(vote, 0, 1)\n    C->>C: revealResult() after deadline\n    C->>G: Public decryption request\n    G-->>C: submitResult(proof)\n    Note over C: Results now public\n```\n\n## 🔐 Privacy Guarantees\n\n- Individual votes are **never revealed**\n- Only the **final tally** is decrypted\n- No one can see vote distribution during voting\n",
+    "keyConcepts": [
+      "FHE.select for vote counting",
+      "makePubliclyDecryptable for reveal",
+      "checkSignatures for proof verification"
+    ]
   },
   "blind-auction": {
     "contract": "examples/contracts/auctions/BlindAuction.sol",
@@ -332,14 +315,12 @@
       "defi",
       "advanced"
     ],
-    "level": "advanced",
-    "status": "stable",
-    "networks": [
-      "local",
-      "sepolia"
-    ],
-    "docSlug": "applications/blind-auction",
-    "highlight": true
+    "extraDoc": "\n## 🔨 Sealed-Bid Auction\n\nBids are encrypted until the auction ends:\n\n```mermaid\nstateDiagram-v2\n    [*] --> Bidding: Auction Created\n    Bidding --> Bidding: bid(encryptedAmount)\n    Bidding --> Ended: stopAuction()\n    Ended --> Revealed: Gateway decrypts winner\n    Revealed --> Claimed: Winners claim\n```\n\n## 💡 Winner Selection\n\n```solidity\nebool isHigher = FHE.gt(userBid, _highestBid);\n_highestBid = FHE.select(isHigher, userBid, _highestBid);\n```\n\nThe highest bid updates **without revealing any amounts**.\n",
+    "keyConcepts": [
+      "FHE.gt for encrypted comparison",
+      "FHE.select for conditional update",
+      "Gateway callback pattern"
+    ]
   },
   "lab-input-proof": {
     "contract": "examples/contracts/labs/LabInputProof.sol",
@@ -352,13 +333,12 @@
       "security",
       "input-proofs"
     ],
-    "level": "intermediate",
-    "status": "stable",
-    "networks": [
-      "local"
-    ],
-    "docSlug": "labs/lab-input-proof",
-    "lab": true
+    "extraDoc": "\n## 🧪 Lab Challenge\n\n**Goal:** Understand why proofs are bound to specific contracts.\n\n### Steps:\n1. ✅ Create valid proof for Contract A\n2. ❌ Try to use same proof on Contract B\n3. 🔍 Observe the revert\n\n### Learning Outcome:\nProofs contain the contract address in the signature. Using a proof on a different contract will always fail.\n",
+    "keyConcepts": [
+      "Contract binding in proofs",
+      "Cross-contract replay prevention",
+      "Signature verification"
+    ]
   },
   "lab-wrong-signer": {
     "contract": "examples/contracts/labs/LabWrongSigner.sol",
@@ -371,13 +351,12 @@
       "security",
       "input-proofs"
     ],
-    "level": "intermediate",
-    "status": "stable",
-    "networks": [
-      "local"
-    ],
-    "docSlug": "labs/lab-wrong-signer",
-    "lab": true
+    "extraDoc": "\n## 🧪 Lab Challenge\n\n**Goal:** Learn that proofs are bound to `msg.sender`.\n\n### Attack Scenario:\n1. Alice creates an encrypted input\n2. Bob intercepts Alice's ciphertext + proof\n3. Bob tries to submit it as his own\n\n### Expected Result:\n```\n❌ REVERT: Proof signer != msg.sender\n```\n",
+    "keyConcepts": [
+      "Sender binding in proofs",
+      "Front-running prevention",
+      "Identity verification"
+    ]
   },
   "lab-replay-attack": {
     "contract": "examples/contracts/labs/LabReplayAttack.sol",
@@ -390,13 +369,12 @@
       "security",
       "input-proofs"
     ],
-    "level": "intermediate",
-    "status": "stable",
-    "networks": [
-      "local"
-    ],
-    "docSlug": "labs/lab-replay-attack",
-    "lab": true
+    "extraDoc": "\n## 🧪 Lab Challenge\n\n**Goal:** Understand replay attack risks and mitigation.\n\n### The Vulnerability:\n```solidity\n// ❌ Vulnerable: Same input can be used twice\nfunction claim(input, proof) {\n    balance += FHE.fromExternal(input, proof);\n}\n```\n\n### The Fix:\n```solidity\n// ✅ Secure: State prevents replay\nfunction claim(input, proof) {\n    require(!hasClaimed[msg.sender]);\n    balance += FHE.fromExternal(input, proof);\n    hasClaimed[msg.sender] = true;\n}\n```\n",
+    "keyConcepts": [
+      "State-based replay prevention",
+      "One-time actions",
+      "Nonce patterns"
+    ]
   },
   "erc7984-example": {
     "contract": "examples/contracts/openzeppelin-confidential-contracts/ERC7984Example.sol",
@@ -409,16 +387,15 @@
       "token",
       "standard"
     ],
-    "level": "intermediate",
-    "status": "stable",
-    "networks": [
-      "local",
-      "sepolia"
-    ],
-    "docSlug": "openzeppelin/erc7984-example",
     "extraDependencies": {
-      "openzeppelin-confidential-contracts": "^0.2.1"
-    }
+      "@openzeppelin/confidential-contracts": "^0.3.0"
+    },
+    "extraDoc": "\n## 🪙 Confidential Token Standard\n\nERC7984 is the **FHE-native token standard** by OpenZeppelin:\n\n| Feature | ERC20 | ERC7984 |\n|---------|-------|--------|\n| Balances | Public | Encrypted (euint64) |\n| Transfers | Visible | Amounts hidden |\n| Approvals | Public | Encrypted |\n\n```mermaid\nflowchart LR\n    A[Public ERC20] -->|Wrap| B[Private ERC7984]\n    B -->|Unwrap| A\n```\n",
+    "keyConcepts": [
+      "euint64 balances",
+      "confidentialTransfer",
+      "Operator pattern (setOperator)"
+    ]
   },
   "erc20-wrapper": {
     "contract": "examples/contracts/openzeppelin-confidential-contracts/ERC20WrapperExample.sol",
@@ -431,16 +408,15 @@
       "token",
       "wrapper"
     ],
-    "level": "intermediate",
-    "status": "stable",
-    "networks": [
-      "local",
-      "sepolia"
-    ],
-    "docSlug": "openzeppelin/erc20-wrapper",
     "extraDependencies": {
-      "openzeppelin-confidential-contracts": "^0.2.1"
-    }
+      "@openzeppelin/confidential-contracts": "^0.3.0"
+    },
+    "extraDoc": "\n## 🔄 Public to Private Bridge\n\n```mermaid\nflowchart LR\n    A[100 USDC] -->|wrap| B[100 cUSDC]\n    B -->|Transfer privately| C[Recipient]\n    C -->|unwrap| D[100 USDC]\n```\n\n### Decimal Handling\nNote: ERC7984 uses **6 decimals** (euint64 max ~18.4 quintillion).\nWrapping from 18-decimal ERC20 scales down by 10^12.\n",
+    "keyConcepts": [
+      "wrap/unwrap pattern",
+      "Decimal conversion",
+      "Public<->Private bridge"
+    ]
   },
   "erc7984-erc20-swap": {
     "contract": "examples/contracts/openzeppelin-confidential-contracts/SwapERC7984ERC20.sol",
@@ -453,16 +429,15 @@
       "defi",
       "swap"
     ],
-    "level": "advanced",
-    "status": "stable",
-    "networks": [
-      "local",
-      "sepolia"
-    ],
-    "docSlug": "openzeppelin/erc7984-erc20-swap",
     "extraDependencies": {
-      "openzeppelin-confidential-contracts": "^0.2.1"
-    }
+      "@openzeppelin/confidential-contracts": "^0.3.0"
+    },
+    "extraDoc": "\n## 🔄 Hybrid Atomic Swap\n\nSwap private tokens for public tokens:\n\n```mermaid\nsequenceDiagram\n    participant A as Alice (Seller)\n    participant C as Swap Contract\n    participant B as Bob (Buyer)\n    A->>C: createOrder(encryptedAmount, publicPrice)\n    Note over C: Lock private tokens\n    B->>C: fillOrder(orderId)\n    Note over C: Transfer public tokens to Alice\n    Note over C: Transfer private tokens to Bob\n```\n",
+    "keyConcepts": [
+      "Order book pattern",
+      "Hybrid public/private swaps",
+      "Escrow with FHE"
+    ]
   },
   "erc7984-erc7984-swap": {
     "contract": "examples/contracts/openzeppelin-confidential-contracts/SwapERC7984ERC7984.sol",
@@ -475,16 +450,15 @@
       "defi",
       "swap"
     ],
-    "level": "advanced",
-    "status": "stable",
-    "networks": [
-      "local",
-      "sepolia"
-    ],
-    "docSlug": "openzeppelin/erc7984-erc7984-swap",
     "extraDependencies": {
-      "openzeppelin-confidential-contracts": "^0.2.1"
-    }
+      "@openzeppelin/confidential-contracts": "^0.3.0"
+    },
+    "extraDoc": "\n## 🔄 Fully Private Atomic Swap\n\nBoth sides of the trade remain confidential:\n\n```mermaid\nflowchart TD\n    A[Alice: 100 TokenA] -->|Lock| C[Swap Contract]\n    B[Bob: 200 TokenB] -->|Lock| C\n    C -->|FHE.eq check| D{Amounts Match?}\n    D -->|Yes| E[Swap Executes]\n    D -->|No| F[Swap 0 tokens]\n```\n\n## 💡 Key Feature\n\nAmounts are verified with `FHE.eq` - if they don't match the expected, the swap transfers nothing.\n",
+    "keyConcepts": [
+      "FHE.eq for amount matching",
+      "Conditional swap with select",
+      "Fully encrypted OTC trades"
+    ]
   },
   "vesting-wallet": {
     "contract": "examples/contracts/openzeppelin-confidential-contracts/VestingWalletExample.sol",
@@ -497,15 +471,14 @@
       "finance",
       "vesting"
     ],
-    "level": "intermediate",
-    "status": "stable",
-    "networks": [
-      "local",
-      "sepolia"
-    ],
-    "docSlug": "openzeppelin/vesting-wallet",
     "extraDependencies": {
-      "openzeppelin-confidential-contracts": "^0.2.1"
-    }
+      "@openzeppelin/confidential-contracts": "^0.3.0"
+    },
+    "extraDoc": "\n## 📈 Confidential Linear Vesting\n\nVesting schedule where the **total allocation remains private**:\n\n```mermaid\nflowchart LR\n    A[Locked: ████████] -->|Time passes| B[Vested: ████░░░░]\n    B -->|More time| C[Vested: ██████░░]\n    C -->|Cliff reached| D[Fully Vested: ████████]\n```\n\n### Formula:\n```\nvested = totalAllocation * (currentTime - start) / duration\n```\n\nAll calculated on **encrypted values**.\n",
+    "keyConcepts": [
+      "FHE.mul/div for linear calculation",
+      "Time-based encrypted state",
+      "Incremental release pattern"
+    ]
   }
 }

@@ -11,6 +11,24 @@ const APP_DATA_DIR = path.join(ROOT_DIR, 'app', 'src', 'data');
 const CATALOG_PATH = path.join(APP_DATA_DIR, 'catalog.json');
 const CONTENT_PATH = path.join(APP_DATA_DIR, 'content.json');
 
+interface CatalogEntry {
+    contract: string;
+    test: string;
+    extraDoc?: string;
+    keyConcepts?: string[];
+    title?: string;
+    description?: string;
+    category?: string;
+    tags?: string[];
+}
+
+interface ContentEntry {
+    contract: string;
+    test: string;
+    extraDoc?: string;
+    keyConcepts?: string[];
+}
+
 async function main() {
     console.log('🔄 Syncing content.json with catalog and source files...');
 
@@ -19,19 +37,17 @@ async function main() {
         console.error(`❌ Catalog not found at ${CATALOG_PATH}`);
         process.exit(1);
     }
-    const catalog = await fs.readJson(CATALOG_PATH);
+    const catalog: Record<string, CatalogEntry> = await fs.readJson(CATALOG_PATH);
 
-    const contentMap: Record<string, { contract: string; test: string }> = {};
+    const contentMap: Record<string, ContentEntry> = {};
     let successCount = 0;
     let failCount = 0;
 
     // 2. Iterate and Read Files
     for (const [key, entry] of Object.entries(catalog)) {
-        const entryData = entry as { contract: string; test: string };
-
         // Resolve paths relative to ROOT_DIR
-        const contractPath = path.join(ROOT_DIR, entryData.contract);
-        const testPath = path.join(ROOT_DIR, entryData.test);
+        const contractPath = path.join(ROOT_DIR, entry.contract);
+        const testPath = path.join(ROOT_DIR, entry.test);
 
         let contractContent = '';
         let testContent = '';
@@ -46,7 +62,7 @@ async function main() {
                 console.error(`⚠️ Error reading contract for ${key}: ${e.message}`);
             }
         } else {
-            console.warn(`⚠️ Contract file not found for ${key}: ${entryData.contract}`);
+            console.warn(`⚠️ Contract file not found for ${key}: ${entry.contract}`);
         }
 
         // Read Test
@@ -59,16 +75,24 @@ async function main() {
                 console.error(`⚠️ Error reading test for ${key}: ${e.message}`);
             }
         } else {
-            console.warn(`⚠️ Test file not found for ${key}: ${entryData.test}`);
+            console.warn(`⚠️ Test file not found for ${key}: ${entry.test}`);
         }
 
-        // Only add if we have at least one of them? Or always add (with empty strings) to match catalog?
-        // Let's match catalog keys, even if content is missing (UI might handle empty strings).
-        // But checking Detail.tsx, it shows "Loading..." if undefined, so empty string is better than undefined.
+        // Build content entry with extraDoc and keyConcepts from catalog
         contentMap[key] = {
             contract: contractContent,
-            test: testContent
+            test: testContent,
         };
+
+        // Include extraDoc if present
+        if (entry.extraDoc) {
+            contentMap[key].extraDoc = entry.extraDoc;
+        }
+
+        // Include keyConcepts if present
+        if (entry.keyConcepts && entry.keyConcepts.length > 0) {
+            contentMap[key].keyConcepts = entry.keyConcepts;
+        }
 
         if (contractContent && testContent) {
             successCount++;

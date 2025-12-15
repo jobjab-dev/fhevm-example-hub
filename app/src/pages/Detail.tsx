@@ -1,17 +1,307 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Terminal, Copy, Check, FileCode, Play, ChevronRight, ChevronLeft, Sparkles } from 'lucide-react';
+import { ArrowLeft, Terminal, Copy, Check, FileCode, Play, ChevronRight, ChevronLeft, Sparkles, Brain, ZoomIn, ZoomOut, RotateCcw, Maximize2, X, Move } from 'lucide-react';
 import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import sol from 'react-syntax-highlighter/dist/esm/languages/prism/solidity';
 import ts from 'react-syntax-highlighter/dist/esm/languages/prism/typescript';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import ReactMarkdown from 'react-markdown';
+import mermaid from 'mermaid';
 import catalogData from '../data/catalog.json';
 import contentMap from '../data/content.json';
 import clsx from 'clsx';
 import { useChat } from '../context/ChatContext';
 
+// Initialize mermaid
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'dark',
+  themeVariables: {
+    primaryColor: '#eab308',
+    primaryTextColor: '#fff',
+    primaryBorderColor: '#eab308',
+    lineColor: '#6b7280',
+    secondaryColor: '#1f2937',
+    tertiaryColor: '#111827',
+  },
+});
+
+// Mermaid component for rendering diagrams with expand button
+function MermaidDiagram({ chart }: { chart: string }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [svgContent, setSvgContent] = useState<string>('');
+
+  useEffect(() => {
+    const renderDiagram = async () => {
+      try {
+        const id = `mermaid-${Math.random().toString(36).substring(7)}`;
+        const { svg } = await mermaid.render(id, chart);
+        setSvgContent(svg);
+      } catch (error) {
+        console.error('Mermaid render error:', error);
+        setSvgContent(`<pre class="text-red-400 text-xs">${chart}</pre>`);
+      }
+    };
+    renderDiagram();
+  }, [chart]);
+
+  useEffect(() => {
+    if (containerRef.current && svgContent) {
+      containerRef.current.innerHTML = svgContent;
+    }
+  }, [svgContent]);
+
+  // Reset zoom/pan when opening fullscreen
+  useEffect(() => {
+    if (isFullscreen) {
+      setScale(1);
+      setPosition({ x: 0, y: 0 });
+    }
+  }, [isFullscreen]);
+
+  // Handle ESC key to close fullscreen
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isFullscreen) {
+        setIsFullscreen(false);
+      }
+    };
+    if (isFullscreen) {
+      document.addEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'hidden';
+    }
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
+  }, [isFullscreen]);
+
+  const handleZoomIn = () => setScale(prev => Math.min(prev + 0.25, 3));
+  const handleZoomOut = () => setScale(prev => Math.max(prev - 0.25, 0.5));
+  const handleReset = () => {
+    setScale(1);
+    setPosition({ x: 0, y: 0 });
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (e.button === 0) {
+      setIsDragging(true);
+      setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (isDragging) {
+      setPosition({
+        x: e.clientX - dragStart.x,
+        y: e.clientY - dragStart.y
+      });
+    }
+  };
+
+  const handleMouseUp = () => setIsDragging(false);
+
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? -0.1 : 0.1;
+    setScale(prev => Math.max(0.5, Math.min(3, prev + delta)));
+  };
+
+  return (
+    <>
+      {/* Normal view - only expand button */}
+      <div className="relative bg-black/20 rounded-lg border border-white/5">
+        <button
+          onClick={() => setIsFullscreen(true)}
+          className="absolute top-2 right-2 z-10 p-1.5 bg-zinc-800/90 hover:bg-zinc-700 backdrop-blur-sm rounded-lg transition-colors text-gray-400 hover:text-white border border-white/10"
+          title="Expand"
+        >
+          <Maximize2 size={16} />
+        </button>
+        <div ref={containerRef} className="overflow-x-auto py-4 px-2" />
+      </div>
+
+      {/* Fullscreen Modal - rendered via Portal to document.body */}
+      {isFullscreen && createPortal(
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            zIndex: 99999,
+            backgroundColor: '#0a0a0a',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          {/* Top Controls Bar */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '16px 24px',
+            backgroundColor: '#18181b',
+            borderBottom: '1px solid rgba(255,255,255,0.1)',
+          }}>
+            <span style={{ color: '#9ca3af', fontSize: '14px', fontFamily: 'monospace' }}>
+              Diagram Viewer
+            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <button
+                onClick={handleZoomOut}
+                style={{
+                  padding: '8px 12px',
+                  backgroundColor: '#27272a',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '6px',
+                  color: '#d4d4d8',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+              >
+                <ZoomOut size={16} />
+              </button>
+              <span style={{
+                color: '#9ca3af',
+                fontSize: '12px',
+                fontFamily: 'monospace',
+                minWidth: '50px',
+                textAlign: 'center',
+              }}>
+                {Math.round(scale * 100)}%
+              </span>
+              <button
+                onClick={handleZoomIn}
+                style={{
+                  padding: '8px 12px',
+                  backgroundColor: '#27272a',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '6px',
+                  color: '#d4d4d8',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+              >
+                <ZoomIn size={16} />
+              </button>
+              <button
+                onClick={handleReset}
+                style={{
+                  padding: '8px 12px',
+                  backgroundColor: '#27272a',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '6px',
+                  color: '#d4d4d8',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+              >
+                <RotateCcw size={16} />
+              </button>
+              <div style={{ width: '1px', height: '24px', backgroundColor: 'rgba(255,255,255,0.2)', margin: '0 8px' }} />
+              <button
+                onClick={() => setIsFullscreen(false)}
+                style={{
+                  padding: '8px 12px',
+                  backgroundColor: '#dc2626',
+                  border: 'none',
+                  borderRadius: '6px',
+                  color: 'white',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+              >
+                <X size={16} />
+                <span>Close</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Diagram Content Area */}
+          <div
+            style={{
+              flex: 1,
+              overflow: 'hidden',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: isDragging ? 'grabbing' : 'grab',
+            }}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            onWheel={handleWheel}
+          >
+            <div
+              style={{
+                transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+                transformOrigin: 'center center',
+                transition: isDragging ? 'none' : 'transform 0.1s ease-out',
+              }}
+              dangerouslySetInnerHTML={{ __html: svgContent }}
+            />
+          </div>
+
+          {/* Bottom hint */}
+          <div style={{
+            padding: '8px 24px',
+            backgroundColor: '#18181b',
+            borderTop: '1px solid rgba(255,255,255,0.1)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            color: '#6b7280',
+            fontSize: '12px',
+            fontFamily: 'monospace',
+          }}>
+            <Move size={14} />
+            <span>Drag to pan • Scroll to zoom • Press ESC to close</span>
+          </div>
+        </div>,
+        document.body
+      )}
+    </>
+  );
+}
+
 SyntaxHighlighter.registerLanguage('solidity', sol);
 SyntaxHighlighter.registerLanguage('typescript', ts);
+// Type definitions
+interface CatalogEntry {
+  title: string;
+  description: string;
+  category: string;
+  tags: string[];
+  contract: string;
+  test: string;
+  level?: string;
+  extraDoc?: string;
+  keyConcepts?: string[];
+}
+
+interface ContentEntry {
+  contract: string;
+  test: string;
+  extraDoc?: string;
+  keyConcepts?: string[];
+}
 
 export default function Detail() {
   const { key } = useParams<{ key: string }>();
@@ -23,8 +313,11 @@ export default function Detail() {
 
   // Decoded key might be needed if passed encoded
   const decodedKey = decodeURIComponent(key || '');
-  const example = catalogData[decodedKey as keyof typeof catalogData];
-  const content = contentMap[decodedKey as keyof typeof contentMap];
+  const catalog = catalogData as Record<string, CatalogEntry>;
+  const contentStore = contentMap as Record<string, ContentEntry>;
+
+  const example = catalog[decodedKey];
+  const content = contentStore[decodedKey];
 
   // Global Sequence Logic
   const allKeys = Object.keys(catalogData);
@@ -105,6 +398,68 @@ export default function Detail() {
               ))}
             </div>
           </div>
+
+          {/* Key FHE Concepts */}
+          {content?.keyConcepts && content.keyConcepts.length > 0 && (
+            <div className="bg-zinc-900/50 backdrop-blur-sm border border-white/10 rounded-xl p-4">
+              <h3 className="text-sm font-bold text-gray-300 mb-3 flex items-center gap-2 font-mono">
+                <Brain size={16} className="text-purple-400" />
+                KEY FHE CONCEPTS
+              </h3>
+              <ul className="space-y-2">
+                {content.keyConcepts.map((concept, idx) => (
+                  <li key={idx} className="flex items-start gap-2 text-sm text-gray-400">
+                    <span className="text-yellow-500 mt-1">•</span>
+                    <code className="font-mono text-xs bg-black/30 px-2 py-0.5 rounded text-purple-300">{concept}</code>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Extra Documentation with Mermaid Diagrams */}
+          {content?.extraDoc && (
+            <div className="bg-zinc-900/50 backdrop-blur-sm border border-white/10 rounded-xl p-4">
+              <div className="prose prose-invert prose-sm max-w-none documentation-content">
+                <ReactMarkdown
+                  components={{
+                    code: ({ className, children }) => {
+                      const match = /language-(\w+)/.exec(className || '');
+                      if (match && match[1] === 'mermaid') {
+                        return <MermaidDiagram chart={String(children).trim()} />;
+                      }
+                      return (
+                        <code className="bg-black/50 px-1 py-0.5 rounded text-purple-300 text-xs font-mono">
+                          {children}
+                        </code>
+                      );
+                    },
+                    pre: ({ children }) => <>{children}</>,
+                    h2: ({ children }) => (
+                      <h2 className="text-base font-bold text-white mt-4 mb-2 font-mono">{children}</h2>
+                    ),
+                    h3: ({ children }) => (
+                      <h3 className="text-sm font-bold text-gray-300 mt-3 mb-1 font-mono">{children}</h3>
+                    ),
+                    p: ({ children }) => (
+                      <p className="text-gray-400 text-sm leading-relaxed mb-2">{children}</p>
+                    ),
+                    strong: ({ children }) => (
+                      <strong className="text-yellow-500 font-semibold">{children}</strong>
+                    ),
+                    ul: ({ children }) => (
+                      <ul className="list-disc list-inside text-gray-400 text-sm space-y-1 mb-2">{children}</ul>
+                    ),
+                    ol: ({ children }) => (
+                      <ol className="list-decimal list-inside text-gray-400 text-sm space-y-1 mb-2">{children}</ol>
+                    ),
+                  }}
+                >
+                  {content.extraDoc}
+                </ReactMarkdown>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Right Column: Code & Preview */}
