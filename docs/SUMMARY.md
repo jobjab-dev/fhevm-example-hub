@@ -1,36 +1,79 @@
-# Summary
+# FHEVM Example Hub Documentation
 
-* [Applications](chapters/applications.md)
-  * [Blind Auction](examples/applications/blind-auction.md)
-  * [Confidential Voting](examples/applications/confidential-voting.md)
-  * [Private Age Verification](examples/applications/private-age-verification.md)
-  * [Private Crowdfunding](examples/applications/private-crowdfunding.md)
-  * [Rock Paper Scissors](examples/applications/rock-paper-scissors.md)
-* [Basic](chapters/basic.md)
-  * [Encrypted Counter](examples/basic/fhe-counter.md)
-* [Concepts](chapters/concepts.md)
-  * [Access Control](examples/concepts/access-control.md)
-  * [Input Proofs](examples/concepts/input-proofs.md)
-  * [Anti-Patterns](examples/concepts/anti-patterns.md)
-  * [Handles Lifecycle](examples/concepts/handles.md)
-* [Decryption](chapters/decryption.md)
-  * [User Decrypt Single](examples/decryption/user-decrypt-single-value.md)
-  * [User Decrypt Multiple](examples/decryption/user-decrypt-multiple-values.md)
-  * [Public Decrypt Single](examples/decryption/public-decrypt-single-value.md)
-  * [Public Decrypt Multiple](examples/decryption/public-decrypt-multiple-values.md)
-* [Encryption](chapters/encryption.md)
-  * [Encrypt Single Value](examples/encryption/encrypt-single-value.md)
-  * [Encrypt Multiple Values](examples/encryption/encrypt-multiple-values.md)
-* [Labs](chapters/labs.md)
-  * [Lab: Input Proofs](examples/labs/lab-input-proof.md)
-  * [Lab: Wrong Signer](examples/labs/lab-wrong-signer.md)
-  * [Lab: Replay Attack](examples/labs/lab-replay-attack.md)
-* [Openzeppelin](chapters/openzeppelin.md)
-  * [ERC7984 Token](examples/openzeppelin/erc7984-example.md)
-  * [ERC20 Wrapper](examples/openzeppelin/erc20-wrapper.md)
-  * [Swap ERC7984 <-> ERC20](examples/openzeppelin/erc7984-erc20-swap.md)
-  * [Swap ERC7984 <-> ERC7984](examples/openzeppelin/erc7984-erc7984-swap.md)
-  * [Vesting Wallet](examples/openzeppelin/vesting-wallet.md)
-* [Operations](chapters/operations.md)
-  * [FHE Operations](examples/operations/fhe-operations.md)
-  * [FHE If-Then-Else](examples/operations/fhe-if-then-else.md)
+> 📚 Complete reference for all FHEVM examples
+
+## Quick Links
+
+- [Getting Started](../README.md)
+- [Example Catalog](../example-catalog.json)
+
+## Examples by Category
+
+### 🐣 Basic
+
+| Example | Description |
+|---------|-------------|
+| [Encrypted Counter](examples/basic/fhe-counter.md) | A simple FHE counter demonstrating basic encrypted operations |
+
+### 🔐 Encryption
+
+| Example | Description |
+|---------|-------------|
+| [Encrypt Single Value](examples/encryption/encrypt-single-value.md) | Demonstrates FHE encryption mechanism and common pitfalls |
+| [Encrypt Multiple Values](examples/encryption/encrypt-multiple-values.md) | Shows how to encrypt and handle multiple values |
+
+### 🔓 Decryption
+
+| Example | Description |
+|---------|-------------|
+| [User Decrypt Single](examples/decryption/user-decrypt-single-value.md) | Demonstrates user decryption and permission requirements |
+| [User Decrypt Multiple](examples/decryption/user-decrypt-multiple-values.md) | Shows how to decrypt multiple encrypted values |
+| [Public Decrypt Single](examples/decryption/public-decrypt-single-value.md) | Demonstrates public decryption mechanism |
+| [Public Decrypt Multiple](examples/decryption/public-decrypt-multiple-values.md) | Shows public decryption with multiple values |
+
+### 🧮 Operations
+
+| Example | Description |
+|---------|-------------|
+| [FHE Operations](examples/operations/fhe-operations.md) | Demonstrates FHE arithmetic operations (Add, Sub, Mul) |
+| [FHE If-Then-Else](examples/operations/fhe-if-then-else.md) | Shows conditional operations on encrypted values |
+
+### 🧠 Concepts
+
+| Example | Description |
+|---------|-------------|
+| [Access Control](examples/concepts/access-control.md) | Demonstrates FHE.allow and FHE.allowTransient for access control |
+| [Input Proofs](examples/concepts/input-proofs.md) | Shows correct usage of input proofs to prevent malling |
+| [Anti-Patterns](examples/concepts/anti-patterns.md) | Highlights common mistakes and how to fix them |
+| [Handles Lifecycle](examples/concepts/handles.md) | Explains the concept of FHE handles and their lifecycle |
+
+### 🚀 Applications
+
+| Example | Description |
+|---------|-------------|
+| [Rock Paper Scissors](examples/applications/rock-paper-scissors.md) | Two-player encrypted Rock Paper Scissors game |
+| [Private Age Verification](examples/applications/private-age-verification.md) | Verify age without revealing birthdate using FHE |
+| [Private Crowdfunding](examples/applications/private-crowdfunding.md) | Confidential crowdfunding campaign with encrypted targets and pledges |
+| [Confidential Voting](examples/applications/confidential-voting.md) | Secret ballot voting where individual votes remain encrypted until the end |
+| [Blind Auction](examples/applications/blind-auction.md) | Sealed-bid auction with confidential bids |
+
+### 🧪 Security Labs
+
+| Example | Description |
+|---------|-------------|
+| [Lab: Input Proofs](examples/labs/lab-input-proof.md) | Interactive Lab: Learn why input proofs are bound to contracts |
+| [Lab: Wrong Signer](examples/labs/lab-wrong-signer.md) | Security Lab: Demonstrates input binding to sender address |
+| [Lab: Replay Attack](examples/labs/lab-replay-attack.md) | Security Lab: Handling replay attacks and state protection |
+
+### 🏦 OpenZeppelin
+
+| Example | Description |
+|---------|-------------|
+| [ERC7984 Token](examples/openzeppelin/erc7984-example.md) | ERC7984 confidential token standard implementation |
+| [ERC20 Wrapper](examples/openzeppelin/erc20-wrapper.md) | Wraps a public ERC20 token into a private ERC7984 token |
+| [Swap ERC7984 <-> ERC20](examples/openzeppelin/erc7984-erc20-swap.md) | Atomic swap between ERC7984 and ERC20 tokens |
+| [Swap ERC7984 <-> ERC7984](examples/openzeppelin/erc7984-erc7984-swap.md) | Atomic swap between two confidential ERC7984 tokens |
+| [Vesting Wallet](examples/openzeppelin/vesting-wallet.md) | Confidential vesting wallet for ERC7984 tokens |
+
+---
+*Auto-generated by `npm run docs`*
