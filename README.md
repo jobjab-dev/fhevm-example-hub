@@ -9,7 +9,7 @@
 [![FHEVM](https://img.shields.io/badge/FHEVM-Powered-orange)](https://github.com/zama-ai/fhevm)
 [![Zama](https://img.shields.io/badge/Built_for-Zama-yellow)](https://zama.ai)
 
-🌐 **[Live Demo](https://fhevm-example-hub-rho.vercel.app/)** | 🎬 **[Video walk-through](https://youtu.be/C53WGlLBxP8)**
+📦 **[npm Package](https://www.npmjs.com/package/jobjab-fhevm-examples)** | 🌐 **[Live Demo](https://fhevm-example-hub-rho.vercel.app/)** | 🎬 **[Video walk-through](https://youtu.be/C53WGlLBxP8)**
 
 ## 🚀 Overview
 
