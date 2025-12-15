@@ -1,75 +1,104 @@
-# React + TypeScript + Vite
+# 🌐 FHEVM Example Hub - Web Catalog
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> Interactive web interface to browse, explore, and understand FHEVM examples.
 
-Currently, two official plugins are available:
+## 🚀 Live Demo
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Visit the live site: **[fhevm-example-hub.vercel.app](https://fhevm-example-hub.vercel.app)** *(update with your URL)*
 
-## React Compiler
+## ✨ Features
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+- **📚 Example Catalog** - Browse all FHEVM examples with descriptions, tags, and code previews
+- **🤖 AI Assistant** - Chat with an AI to learn about FHE concepts and get coding help
+- **🔍 Smart Search** - Search examples by name, description, or tags
+- **📊 Dev Dashboard** - View example statistics and quick scripts
 
-Note: This will impact Vite dev & build performances.
+## 🛠️ Tech Stack
 
-## Expanding the ESLint configuration
+- **React 18** + **TypeScript**
+- **Vite** - Build tool
+- **TailwindCSS** - Styling
+- **Framer Motion** - Animations
+- **Google Gemini API** - AI Chat (via Vercel Serverless)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 📦 Development
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Prerequisites
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- Node.js 20.19+ or 22.12+
+- npm 9+
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Local Development
+
+```bash
+# From the root of the monorepo
+npm run dev:web
+
+# Or from this directory
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Build for Production
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run build
 ```
+
+## ☁️ Deployment (Vercel)
+
+### 1. Connect Repository
+
+Connect your GitHub repository to Vercel.
+
+### 2. Configure Build Settings
+
+| Setting | Value |
+|---------|-------|
+| **Framework Preset** | Vite |
+| **Root Directory** | `app` |
+| **Build Command** | `npm run build` |
+| **Output Directory** | `dist` |
+
+### 3. Set Environment Variables
+
+In Vercel Dashboard → Project Settings → Environment Variables:
+
+| Name | Value | Notes |
+|------|-------|-------|
+| `GEMINI_API_KEY` | `AIzaSy...` | **Required** for AI Chat |
+
+> ⚠️ **Important**: Use `GEMINI_API_KEY` (without `VITE_` prefix) to keep the API key secure on the server-side.
+
+### 4. Deploy
+
+Push to `main` branch or click "Deploy" in Vercel Dashboard.
+
+## 📁 Project Structure
+
+```
+app/
+├── api/                 # Vercel Serverless Functions
+│   └── chat.ts          # AI Chat endpoint (secure API key)
+├── src/
+│   ├── components/      # React components
+│   │   └── AIChat/      # AI chat widget
+│   ├── context/         # React contexts
+│   ├── data/            # Example catalog data
+│   ├── layouts/         # Page layouts
+│   ├── pages/           # Page components
+│   └── services/        # API services
+├── public/              # Static assets
+├── vercel.json          # Vercel configuration
+└── package.json
+```
+
+## 🔗 Related
+
+- [Main Repository](https://github.com/jobjab-dev/fhevm-example-hub) - CLI and examples
+- [Zama FHEVM Docs](https://docs.zama.ai/fhevm) - Official documentation
+
+---
+
+<p align="center">
+  Built with ❤️ for the Zama Community
+</p>

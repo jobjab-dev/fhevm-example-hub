@@ -121,6 +121,8 @@ npm run dev:web
 
 This will start a Vite development server in the `app/` directory.
 
+> 📖 **For web catalog documentation and deployment guide, see [app/README.md](app/README.md)**
+
 ### 6. Available Scripts
 
 We provide several scripts to help manage the hub:

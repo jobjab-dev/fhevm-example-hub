@@ -19,7 +19,7 @@ export default function ScrambleText({
 }: ScrambleTextProps) {
     const [displayText, setDisplayText] = useState(text);
     const [_isScrambling, setIsScrambling] = useState(false);
-    const intervalRef = useRef<NodeJS.Timeout | null>(null);
+    const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     useEffect(() => {
         if (!trigger) return;
@@ -27,7 +27,7 @@ export default function ScrambleText({
         let iteration = 0;
         setIsScrambling(true);
 
-        clearInterval(intervalRef.current as NodeJS.Timeout);
+        clearInterval(intervalRef.current as ReturnType<typeof setInterval>);
 
         intervalRef.current = setInterval(() => {
             setDisplayText(_prev =>
@@ -43,14 +43,14 @@ export default function ScrambleText({
             );
 
             if (iteration >= text.length) {
-                clearInterval(intervalRef.current as NodeJS.Timeout);
+                clearInterval(intervalRef.current as ReturnType<typeof setInterval>);
                 setIsScrambling(false);
             }
 
             iteration += 1 / 3; // Slower reveal
         }, scrambleSpeed);
 
-        return () => clearInterval(intervalRef.current as NodeJS.Timeout);
+        return () => clearInterval(intervalRef.current as ReturnType<typeof setInterval>);
     }, [text, trigger, scrambleSpeed]);
 
     return (
