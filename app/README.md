@@ -4,7 +4,7 @@
 
 ## 🚀 Live Demo
 
-Visit the live site: **[fhevm-example-hub.vercel.app](https://fhevm-example-hub.vercel.app)** *(update with your URL)*
+Visit the live site: **[fhevm-example-hub.vercel.app](https://fhevm-example-hub-rho.vercel.app)**
 
 ## ✨ Features
 
