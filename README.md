@@ -73,7 +73,7 @@ npx jobjab-fhevm-examples fhe-counter ./my-project
 **Features:**
 - 📂 **Categorized Selection**: browse Basic, Applications, Concepts, Labs, etc.
 - ⚡ **Instant Setup**: Dependencies, config, and tasks are auto-wired.
-- 🛡️ **Production Template**: Uses the official `fhevm-hardhat-template`.
+- 🛡️ **Production Template**: Based on the official [`fhevm-hardhat-template`](https://github.com/zama-ai/fhevm-hardhat-template) (cloned and extended with additional examples).
 
 ---
 
